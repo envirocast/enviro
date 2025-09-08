@@ -17,7 +17,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 st.set_page_config(
     page_title="Meet Enviro",
-    page_icon="🌎",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -136,10 +136,10 @@ def advanced_markdown(text: str) -> str:
         else:
             if in_ul:
                 out.append("</ul>")
-                in_ul = False
+            in_ul = False
             if in_ol:
                 out.append("</ol>")
-                in_ol = False
+            in_ol = False
             out.append(ln)
     if in_ul:
         out.append("</ul>")
@@ -379,7 +379,7 @@ def inject_quantum_canvas():
           x: rand(0,w),
           y: rand(0,h),
           vx: 0, vy: 0,
-          baseSize: rand(0.7, 1.8),     // smaller particles
+          baseSize: rand(0.7, 1.8),   // smaller particles
           blur: rand(0.4, 2.0),
           alpha: rand(0.25, 0.55),
           jitter: rand(0.1, 0.5),
@@ -488,7 +488,7 @@ def stream_response(response_text: str):
     typing_placeholder.markdown(
         """
         <div class="message assistant-message">
-            <div class="msg-header enviro-header">🌎 Enviro</div>
+            <div class="msg-header enviro-header">🌿 Enviro</div>
             <div class="msg-content"><em>Analyzing environmental data…</em></div>
         </div>
         """,
@@ -508,7 +508,7 @@ def stream_response(response_text: str):
         placeholder.markdown(
             f"""
             <div class="message assistant-message">
-                <div class="msg-header enviro-header">🌎 Enviro</div>
+                <div class="msg-header enviro-header">🌿 Enviro</div>
                 <div class="msg-content">{html}<span style="color:#8B5CF6;animation: blink 1s infinite;font-weight:bold;">|</span></div>
             </div>
             <style>@keyframes blink {{0%,50%{{opacity:1}} 51%,100%{{opacity:0}}}}</style>
@@ -528,7 +528,7 @@ def stream_response(response_text: str):
     placeholder.markdown(
         f"""
         <div class="message assistant-message">
-            <div class="msg-header enviro-header">🌎 Enviro</div>
+            <div class="msg-header enviro-header">🌿 Enviro</div>
             <div class="msg-content">{final_html}</div>
         </div>
         """,
@@ -548,7 +548,7 @@ def main():
     st.markdown(
         """
         <div class="header">
-            <h1 class="title">🌎 Meet Enviro</h1>
+            <h1 class="title">🌿 Meet Enviro</h1>
         </div>
         """,
         unsafe_allow_html=True,
@@ -591,7 +591,7 @@ def main():
             st.markdown(
                 f"""
                 <div class="message assistant-message">
-                    <div class="msg-header enviro-header">🌎 Enviro</div>
+                    <div class="msg-header enviro-header">🌿 Enviro</div>
                     <div class="msg-content">{content}</div>
                 </div>
                 """,
