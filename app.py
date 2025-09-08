@@ -169,20 +169,10 @@ st.markdown(
 * { font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important; }
 
 .stApp {
-    background: linear-gradient(-45deg, #0a0a0a, #0f0f23, #1a1a3a, #2d1b69, #1e1b4b);
-    background-size: 400% 400%;
-    animation: gradientShift 20s ease infinite;
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
-}
-
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    25% { background-position: 100% 0%; }
-    50% { background-position: 100% 100%; }
-    75% { background-position: 0% 100%; }
-    100% { background-position: 0% 50%; }
+    background-color: #0e1117; /* Reverts to a dark background */
 }
 
 /* Hide Streamlit chrome */
@@ -357,8 +347,8 @@ def inject_quantum_canvas():
 
       // Virtual barriers: thin regions where tunneling can occur
       const barriers = [
-        {{{{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }}}},
-        {{{{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}}}
+        {{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }},
+        {{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}
       ];
       function inBarrier(x,y){{
         for (let b of barriers){{
@@ -375,18 +365,18 @@ def inject_quantum_canvas():
 
       for (let i=0;i<COUNT;i++){{
         const seed = nowSeed + i*17.17;
-        particles.push({{{{
+        particles.push({{
           x: rand(0,w),
           y: rand(0,h),
           vx: 0, vy: 0,
-          baseSize: rand(0.7, 1.8),   // smaller particles
+          baseSize: rand(0.7, 1.8),    // smaller particles
           blur: rand(0.4, 2.0),
           alpha: rand(0.25, 0.55),
           jitter: rand(0.1, 0.5),
           seed,
           life: rand(3,10),
           tlife: 0
-        }}}});
+        }});
       }}
 
       let last = performance.now();
@@ -451,10 +441,10 @@ def inject_quantum_canvas():
 
           // Draw particle (soft radial)
           ctx.save();
-          ctx.filter = "blur(" + blur + "px)";
+          ctx.filter = `blur(${blur}px)`;
           const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size*6);
-          g.addColorStop(0, "rgba(0,212,255," + alpha + ")");
-          g.addColorStop(0.5, "rgba(139,92,246," + alpha*0.5 + ")");
+          g.addColorStop(0, `rgba(0,212,255,${alpha})`);
+          g.addColorStop(0.5, `rgba(139,92,246,${alpha*0.5})`);
           g.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = g;
           ctx.beginPath();
@@ -475,7 +465,7 @@ def inject_quantum_canvas():
         requestAnimationFrame(step);
       }}
       requestAnimationFrame(step);
-    }})();
+    }}})();
     </script>
     """), height=0)
 
