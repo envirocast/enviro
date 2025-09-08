@@ -477,7 +477,7 @@ def inject_quantum_canvas():
       requestAnimationFrame(step);
     })();
     </script>
-    """), height=0)  # height=0 keeps it background-only
+    """), height=0)  # <-- triple quotes close here
 
 
 # ------------------------
