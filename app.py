@@ -390,8 +390,8 @@ def inject_quantum_canvas():
         ctx.save();
         ctx.globalAlpha = 0.05;
         const grad = ctx.createRadialGradient(w*0.5,h*0.5,0, w*0.5,h*0.5, Math.max(w,h)*0.7);
-        grad.addColorStop(0,"rgba(139,92,246,0.12)");
-        grad.addColorStop(1,"rgba(0,0,0,0)");
+        grad.addColorStop(0, `rgba(139,92,246,0.12)`);
+        grad.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = grad;
         ctx.fillRect(0,0,w,h);
         ctx.restore();
@@ -441,10 +441,10 @@ def inject_quantum_canvas():
 
           // Draw particle (soft radial)
           ctx.save();
-          ctx.filter = `blur(${blur}px)`;
+          ctx.filter = `blur(${{blur}}px)`; // <-- Double braces
           const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size*6);
-          g.addColorStop(0, `rgba(0,212,255,${alpha})`);
-          g.addColorStop(0.5, `rgba(139,92,246,${alpha*0.5})`);
+          g.addColorStop(0, `rgba(0,212,255,${{alpha}})`); // <-- Double braces
+          g.addColorStop(0.5, `rgba(139,92,246,${{alpha*0.5}})`); // <-- Double braces
           g.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = g;
           ctx.beginPath();
