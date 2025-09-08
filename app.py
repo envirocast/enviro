@@ -302,30 +302,30 @@ def inject_quantum_canvas():
       <canvas id="qc-canvas-{key}" style="width:100%; height:100%; display:block;"></canvas>
     </div>
     <script>
-    (function(){
-      const canvas = document.getElementById("qc-canvas-{key}");
+    (function(){{
+      const canvas = document.getElementById(`qc-canvas-{key}`);
       const ctx = canvas.getContext("2d");
       let w, h, dpr;
 
-      function resize(){
+      function resize(){{
         dpr = window.devicePixelRatio || 1;
         w = canvas.clientWidth;
         h = canvas.clientHeight;
         canvas.width = Math.floor(w * dpr);
         canvas.height = Math.floor(h * dpr);
         ctx.setTransform(dpr,0,0,dpr,0,0);
-      }
+      }}
       resize();
       window.addEventListener("resize", resize);
 
       // ---------- Utilities ----------
-      function rand(a=0,b=1){ return a + Math.random()*(b-a); }
-      function lerp(a,b,t){ return a + (b-a)*t; }
-      function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-      function hash(n){ return Math.sin(n*1e4)*1e4 - Math.floor(Math.sin(n*1e4)*1e4); }
+      function rand(a=0,b=1){{ return a + Math.random()*(b-a); }}
+      function lerp(a,b,t){{ return a + (b-a)*t; }}
+      function clamp(v,a,b){{ return Math.max(a,Math.min(b,v)); }}
+      function hash(n){{ return Math.sin(n*1e4)*1e4 - Math.floor(Math.sin(n*1e4)*1e4); }}
 
       // Lightweight pseudo-noise (value noise-ish)
-      function vnoise2(x,y){
+      function vnoise2(x,y){{
         const xi = Math.floor(x), yi = Math.floor(y);
         const xf = x - xi, yf = y - yi;
         const h = (i,j)=>hash((i*183.1567)^(j*97.345));
@@ -334,10 +334,10 @@ def inject_quantum_canvas():
         const ix0 = v00*(1-sx) + v10*sx;
         const ix1 = v01*(1-sx) + v11*sx;
         return ix0*(1-sy) + ix1*sy;
-      }
+      }}
 
       // Velocity field: layered waves + noise -> fluid-ish motion
-      function flowField(x,y,t){
+      function flowField(x,y,t){{
         // Normalize coords
         const nx = x / w, ny = y / h;
         // Two interfering waves
@@ -353,29 +353,29 @@ def inject_quantum_canvas():
         const vx =  0.4*a + 0.35*c + 0.6*(n1-0.5);
         const vy = -0.35*b + 0.35*c + 0.6*(n2-0.5);
         return [vx, vy];
-      }
+      }}
 
       // Virtual barriers: thin regions where tunneling can occur
       const barriers = [
-        { x: 0.33, y: 0.25, w: 0.34, h: 0.02 },
-        { x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }
+        {{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }},
+        {{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}
       ];
-      function inBarrier(x,y){
-        for (let b of barriers){
+      function inBarrier(x,y){{
+        for (let b of barriers){{
           const bx = b.x*w, by = b.y*h, bw = b.w*w, bh = b.h*h;
           if (x>=bx && x<=bx+bw && y>=by && y<=by+bh) return true;
-        }
+        }}
         return false;
-      }
+      }}
 
       // Particles
       const COUNT = Math.floor(Math.min(220, (w*h)/35000)); // density scaling
       const particles = [];
       const nowSeed = Math.random()*1000;
 
-      for (let i=0;i<COUNT;i++){
+      for (let i=0;i<COUNT;i++){{
         const seed = nowSeed + i*17.17;
-        particles.push({
+        particles.push({{
           x: rand(0,w),
           y: rand(0,h),
           vx: 0, vy: 0,
@@ -386,11 +386,11 @@ def inject_quantum_canvas():
           seed,
           life: rand(3,10),
           tlife: 0
-        });
-      }
+        }});
+      }}
 
       let last = performance.now();
-      function step(ts){
+      function step(ts){{
         const dt = Math.min(0.05, (ts - last) / 1000); // clamp for stability
         last = ts;
 
@@ -408,7 +408,7 @@ def inject_quantum_canvas():
 
         const t = ts/1000;
 
-        for (let p of particles){
+        for (let p of particles){{
           // Flow field + randomness
           const [fx,fy] = flowField(p.x, p.y, t);
           const jx = (hash(p.seed + t*0.7)-0.5) * p.jitter;
@@ -422,18 +422,18 @@ def inject_quantum_canvas():
           let ny = p.y + p.vy*dt;
 
           // Virtual barrier interaction: sometimes "tunnel" through
-          if (inBarrier(nx,ny)){
+          if (inBarrier(nx,ny)){{
             // 7% chance to tunnel (teleport across barrier)
-            if (Math.random() < 0.07){
+            if (Math.random() < 0.07){{
               // jump to mirrored side of barrier region
               nx += (Math.random() < 0.5 ? 40 : -40) * (0.5 + Math.random());
               ny += (Math.random() < 0.5 ? 28 : -28) * (0.5 + Math.random());
-            } else {
+            }} else {{
               // gentle deflection along barrier
               nx += (Math.random()<0.5 ? -1 : 1) * 6;
               ny += (Math.random()<0.5 ? -1 : 1) * 2;
-            }
-          }
+            }}
+          }}
 
           // Edge wrap with tunneling flavor
           if (nx < -10) nx = w + 10;
@@ -464,20 +464,20 @@ def inject_quantum_canvas():
 
           // Life/tunneling reset
           p.tlife += dt;
-          if (p.tlife > p.life){
+          if (p.tlife > p.life){{
             // occasional big tunnel jump to new region
-            if (Math.random() < 0.25){
+            if (Math.random() < 0.25){{
               p.x = rand(0,w); p.y = rand(0,h);
-            }
+            }}
             p.tlife = 0; p.life = rand(3,10);
-          }
-        }
+          }}
+        }}
         requestAnimationFrame(step);
-      }
+      }}
       requestAnimationFrame(step);
-    })();
+    }})();
     </script>
-    """), height=0)  # <-- triple quotes close here
+    """), height=0)
 
 
 # ------------------------
