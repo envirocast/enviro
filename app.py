@@ -357,8 +357,8 @@ def inject_quantum_canvas():
 
       // Virtual barriers: thin regions where tunneling can occur
       const barriers = [
-        {{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }},
-        {{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}
+        {{{{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }}}},
+        {{{{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}}}
       ];
       function inBarrier(x,y){{
         for (let b of barriers){{
@@ -375,7 +375,7 @@ def inject_quantum_canvas():
 
       for (let i=0;i<COUNT;i++){{
         const seed = nowSeed + i*17.17;
-        particles.push({{
+        particles.push({{{{
           x: rand(0,w),
           y: rand(0,h),
           vx: 0, vy: 0,
@@ -386,7 +386,7 @@ def inject_quantum_canvas():
           seed,
           life: rand(3,10),
           tlife: 0
-        }});
+        }}}});
       }}
 
       let last = performance.now();
@@ -451,7 +451,6 @@ def inject_quantum_canvas():
 
           // Draw particle (soft radial)
           ctx.save();
-          // Use standard string concatenation or f-string in Python
           ctx.filter = "blur(" + blur + "px)";
           const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size*6);
           g.addColorStop(0, "rgba(0,212,255," + alpha + ")");
@@ -476,9 +475,9 @@ def inject_quantum_canvas():
         requestAnimationFrame(step);
       }}
       requestAnimationFrame(step);
-    }}})();
+    }})();
     </script>
-    """), height=0)
+    """)), height=0)
 
 
 # ------------------------
