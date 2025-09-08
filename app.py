@@ -477,7 +477,7 @@ def inject_quantum_canvas():
       requestAnimationFrame(step);
     }})();
     </script>
-    """)), height=0)
+    """), height=0)
 
 
 # ------------------------
