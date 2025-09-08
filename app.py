@@ -172,7 +172,7 @@ st.markdown(
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
-    background-color: #0e1117; /* Reverts to a dark background */
+    background-color: #0e1117;
 }
 
 /* Hide Streamlit chrome */
@@ -441,10 +441,10 @@ def inject_quantum_canvas():
 
           // Draw particle (soft radial)
           ctx.save();
-          ctx.filter = `blur(${{blur}}px)`; // <-- Double braces
+          ctx.filter = `blur(${{blur}}px)`;
           const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size*6);
-          g.addColorStop(0, `rgba(0,212,255,${{alpha}})`); // <-- Double braces
-          g.addColorStop(0.5, `rgba(139,92,246,${{alpha*0.5}})`); // <-- Double braces
+          g.addColorStop(0, `rgba(0,212,255,${{alpha}})`);
+          g.addColorStop(0.5, `rgba(139,92,246,${{alpha*0.5}})`);
           g.addColorStop(1, "rgba(0,0,0,0)");
           ctx.fillStyle = g;
           ctx.beginPath();
@@ -465,7 +465,7 @@ def inject_quantum_canvas():
         requestAnimationFrame(step);
       }}
       requestAnimationFrame(step);
-    }}})();
+    }})();
     </script>
     """), height=0)
 
