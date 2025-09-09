@@ -76,6 +76,10 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
+    # ADDED: A flag to track if the first assistant message has been sent.
+    if "first_message_sent" not in st.session_state:
+        st.session_state.first_message_sent = False
+
 
 # -------------------------------------------
 # Minimal, safer markdown -> HTML converter
@@ -209,7 +213,7 @@ st.markdown(
 .chat-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 3rem 1rem;
+    padding: 1.5rem 1rem 8rem 1rem; /* CHANGED: Added more bottom padding for the input */
     position: relative;
     z-index: 5;
 }
@@ -255,17 +259,54 @@ st.markdown(
 .msg-content a:hover { color: #0ea5e9; border-bottom-color: #0ea5e9; text-shadow: 0 0 15px rgba(14,165,233,.45); }
 .welcome { background: linear-gradient(135deg,rgba(0,212,255,.10),rgba(139,92,246,.10),rgba(16,185,129,.10)); border-radius: 20px; padding: 1.6rem; border: 1px solid rgba(255,255,255,.08); }
 
-.stChatInput > div > div {
-    background: linear-gradient(135deg, rgba(15,23,42,.9) 0%, rgba(30,41,59,.85) 100%) !important;
-    backdrop-filter: blur(18px) !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 8px 28px rgba(0,0,0,.28) !important;
+
+/* --- ADDED: Styles for the new custom input form --- */
+.input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem 1rem 1.5rem 1rem;
+    background: linear-gradient(180deg, rgba(14, 17, 23, 0) 0%, rgba(14, 17, 23, 1) 90%);
+    z-index: 100;
 }
-.stChatInput textarea { background: transparent !important; color: #f1f5f9 !important; font-size: 1.02rem !important; border: none !important; padding: 1rem 1.2rem !important; }
-.stChatInput button {
+div[data-testid="stForm"] {
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(15,23,42,.9) 0%, rgba(30,41,59,.85) 100%);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.28);
+    padding: 0.4rem 0.5rem 0.4rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+/* Target the text input specifically */
+div[data-testid="stTextInput"] > div > div > input {
+    background: transparent !important;
+    color: #f1f5f9 !important;
+    font-size: 1.02rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1rem 0 !important;
+}
+/* Target the submit button */
+div[data-testid="stFormSubmitButton"] > button {
     background: linear-gradient(135deg, #00D4FF 0%, #8B5CF6 100%) !important;
-    border: none !important; border-radius: 12px !important; color: #fff !important; font-weight: 600 !important;
+    border: none !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    border-radius: 14px !important;
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+div[data-testid="stFormSubmitButton"] > button:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+    transform: scale(1.05);
 }
 </style>
 """,
@@ -474,23 +515,25 @@ def inject_quantum_canvas():
 # Typing / streaming effect
 # ------------------------
 def stream_response(response_text: str):
-    typing_placeholder = st.empty()
-    typing_placeholder.markdown(
-        """
-        <div class="message assistant-message">
-            <div class="msg-header enviro-header">🌿 Enviro</div>
-            <div class="msg-content"><em>Analyzing environmental data…</em></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # CHANGED: This function is now simpler and conditionally shows the "analyzing" message.
+    placeholder = st.empty()
 
-    # Simulated "thinking" delay (short)
-    time.sleep(0.6)
+    # Only show "Analyzing..." for the very first message
+    if not st.session_state.first_message_sent:
+        placeholder.markdown(
+            """
+            <div class="message assistant-message">
+                <div class="msg-header enviro-header">🌿 Enviro</div>
+                <div class="msg-content"><em>Analyzing environmental data…</em></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        time.sleep(0.8) # Slightly longer "thinking" for the first message
+        st.session_state.first_message_sent = True # Set the flag
 
     words = response_text.split()
     streamed = ""
-    placeholder = st.empty()
 
     for i, w in enumerate(words):
         streamed += w + " "
@@ -524,7 +567,6 @@ def stream_response(response_text: str):
         """,
         unsafe_allow_html=True,
     )
-    typing_placeholder.empty()
     return streamed.strip()
 
 
@@ -546,97 +588,93 @@ def main():
 
     # Background canvas (behind everything)
     inject_quantum_canvas()
+    
+    # Use a container for the main chat content
+    chat_display_container = st.container()
 
-    # Chat container
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    with chat_display_container:
+        # Chat container div
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
-    if not st.session_state.messages:
-        st.markdown(
-            """
-            <div class="welcome">
-                <h2 style="margin:0 0 .4rem 0;">Welcome to EnviroCast AI</h2>
-                <p style="margin:0;">
-                    I’m Enviro, your quantum-enhanced environmental intelligence assistant.
-                    Ask me anything about air quality, pollution analysis, or climate solutions.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # Render history
-    for m in st.session_state.messages:
-        content = advanced_markdown(m["content"])
-        if m["role"] == "user":
+        if not st.session_state.messages:
             st.markdown(
-                f"""
-                <div class="message user-message">
-                    <div class="msg-header user-header">👤 You</div>
-                    <div class="msg-content">{content}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown(
-                f"""
-                <div class="message assistant-message">
-                    <div class="msg-header enviro-header">🌿 Enviro</div>
-                    <div class="msg-content">{content}</div>
+                """
+                <div class="welcome">
+                    <h2 style="margin:0 0 .4rem 0;">Welcome to EnviroCast AI</h2>
+                    <p style="margin:0;">
+                        I’m Enviro, your quantum-enhanced environmental intelligence assistant.
+                        Ask me anything about air quality, pollution analysis, or climate solutions.
+                    </p>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
+        # Render history
+        for m in st.session_state.messages:
+            content = advanced_markdown(m["content"])
+            if m["role"] == "user":
+                st.markdown(
+                    f"""
+                    <div class="message user-message">
+                        <div class="msg-header user-header">👤 You</div>
+                        <div class="msg-content">{content}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    f"""
+                    <div class="message assistant-message">
+                        <div class="msg-header enviro-header">🌿 Enviro</div>
+                        <div class="msg-content">{content}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+        # This is where new messages will be appended dynamically by the streaming function
+        st.markdown('<div id="chat-stream-container"></div>', unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # --- CHANGED: Replaced st.chat_input with a custom form ---
+    st.markdown('<div class="input-container">', unsafe_allow_html=True)
+    with st.form(key="chat_form", clear_on_submit=True):
+        col1, col2 = st.columns([10, 1])
+        with col1:
+            prompt = st.text_input(
+                "prompt",
+                placeholder="Ask about environmental science, air quality, or pollution analysis…",
+                label_visibility="collapsed"
+            )
+        with col2:
+            submitted = st.form_submit_button("➤")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Chat input
-    prompt = st.chat_input("Ask about environmental science, air quality, pollution analysis, or climate solutions…")
-
-    if prompt:
-        # add user message
+    if submitted and prompt:
+        # add user message to state
         st.session_state.messages.append({"role": "user", "content": prompt})
-
-        # display immediately
-        user_html = advanced_markdown(prompt)
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <div class="message user-message">
-                    <div class="msg-header user-header">👤 You</div>
-                    <div class="msg-content">{user_html}</div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
         # get assistant response
         try:
-            response = st.session_state.chat_session.send_message(prompt)
-            st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-            full = stream_response(response.text)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            # store assistant message
-            st.session_state.messages.append({"role": "assistant", "content": full})
-            st.rerun()
+            with chat_display_container:
+                # We don't need to manually re-render the user message here because rerun will handle it.
+                # Just call the API and stream the response.
+                st.markdown('<div class="chat-container">', unsafe_allow_html=True) # Open container for the stream
+                
+                response = st.session_state.chat_session.send_message(prompt)
+                full_response = stream_response(response.text)
+                
+                st.markdown("</div>", unsafe_allow_html=True) # Close container
+                
+                # store full assistant message in state
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                st.rerun()
 
         except Exception as e:
-            st.markdown(
-                f"""
-                <div class="chat-container">
-                    <div class="message assistant-message" style="border-left-color:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));">
-                        <div class="msg-header" style="color:#f87171;">⚠️ Error</div>
-                        <div class="msg-content" style="color:#fca5a5;">
-                            <strong>Error:</strong> {str(e)}<br><br>
-                            {"🔄 <em>API rate limit reached. Please try again in a moment.</em>" if "rate" in str(e).lower() else "🔄 <em>Please try again in a moment.</em>"}
-                        </div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.error(f"An error occurred: {str(e)}")
 
 
 if __name__ == "__main__":
