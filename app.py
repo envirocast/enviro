@@ -391,9 +391,6 @@ def stream_response(response_text):
 def main():
     initialize_session_state()
     
-    # Main app container
-    #st.markdown('<div class="app-container">', unsafe_allow_html=True)
-    
     # Header section
     st.markdown("""
     <div class="header">
