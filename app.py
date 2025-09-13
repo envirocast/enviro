@@ -343,15 +343,43 @@ def display_message(role, content, avatar_icon):
     """, unsafe_allow_html=True)
 
 def stream_response(response):
-    message_placeholder = st.empty()
+    # 1. Display "Enviro is analyzing..." message
+    analyzing_placeholder = st.empty()
+    analyzing_message_html = """
+        <div class="message assistant-message">
+            <div class="avatar assistant-avatar">🌐</div>
+            <div class="message-content">
+                <span style="color: #00D4FF; font-weight: bold;">Enviro is analyzing...</span>
+            </div>
+        </div>
+    """
+    analyzing_placeholder.markdown(analyzing_message_html, unsafe_allow_html=True)
+    time.sleep(2) # Show message for a couple of seconds
+
+    # 2. Clear the analyzing message and prepare for streaming
+    analyzing_placeholder.empty()
     full_response = ""
+    message_placeholder = st.empty()
+    
+    # 3. Stream the response
     for chunk in response:
         full_response += chunk.text
-        message_placeholder.markdown(f'<div class="message assistant-message"><div class="avatar assistant-avatar">🌐</div><div class="message-content">{full_response} <span class="typing-cursor">|</span></div></div>', unsafe_allow_html=True)
-        time.sleep(0.01) # A small delay to create a typing effect
-    
-    # Replace with the final, complete message
-    message_placeholder.markdown(f'<div class="message assistant-message"><div class="avatar assistant-avatar">🌐</div><div class="message-content">{full_response}</div></div>', unsafe_allow_html=True)
+        # We use st.markdown to render markdown correctly.
+        message_placeholder.markdown(f"""
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">{full_response} <span class="typing-cursor">|</span></div>
+            </div>
+        """, unsafe_allow_html=True)
+        time.sleep(0.02) # Slower typing effect for a more natural feel
+
+    # 4. Final render of the message without the cursor
+    message_placeholder.markdown(f"""
+        <div class="message assistant-message">
+            <div class="avatar assistant-avatar">🌐</div>
+            <div class="message-content">{full_response}</div>
+        </div>
+    """, unsafe_allow_html=True)
     return full_response
 
 # -------------
