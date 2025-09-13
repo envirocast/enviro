@@ -278,7 +278,7 @@ from streamlit.components.v1 import html as components_html
 def inject_quantum_canvas():
     key = str(uuid.uuid4())
     components_html(dedent(f"""
-    <div id="quantum-canvas-{key}" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;">
+    <div id="quantum-canvas-{key}" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;">
         <canvas id="canvas-{key}" style="width: 100%; height: 100%;"></canvas>
     </div>
     
@@ -298,22 +298,26 @@ def inject_quantum_canvas():
             constructor() {{
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 2;
-                this.vy = (Math.random() - 0.5) * 2;
-                this.size = Math.random() * 3 + 1;
-                this.opacity = Math.random() * 0.5 + 0.3;
+                this.vx = (Math.random() - 0.5) * 3;
+                this.vy = (Math.random() - 0.5) * 3;
+                this.size = Math.random() * 2 + 1.5;
+                this.opacity = Math.random() * 0.6 + 0.4;
                 this.phase = Math.random() * Math.PI * 2;
                 this.speed = Math.random() * 2 + 0.5;
                 this.entangled = null;
                 this.color = this.getRandomColor();
                 this.tunnelCooldown = 0;
+                this.trail = [];
+                this.trailLength = 8;
             }}
             
             getRandomColor() {{
                 const colors = [
                     'rgba(0, 212, 255, ',
                     'rgba(139, 92, 246, ',
-                    'rgba(16, 185, 129, '
+                    'rgba(16, 185, 129, ',
+                    'rgba(236, 72, 153, ',
+                    'rgba(245, 158, 11, '
                 ];
                 return colors[Math.floor(Math.random() * colors.length)];
             }}
@@ -321,17 +325,24 @@ def inject_quantum_canvas():
             update() {{
                 if (this.tunnelCooldown > 0) this.tunnelCooldown--;
                 
+                // Add current position to trail
+                this.trail.push({{x: this.x, y: this.y}});
+                if (this.trail.length > this.trailLength) {{
+                    this.trail.shift();
+                }}
+                
                 // Quantum tunneling (teleportation)
-                if (Math.random() < 0.001 && this.tunnelCooldown === 0) {{
+                if (Math.random() < 0.002 && this.tunnelCooldown === 0) {{
                     this.x = Math.random() * canvas.width;
                     this.y = Math.random() * canvas.height;
-                    this.tunnelCooldown = 300; // 5 second cooldown
+                    this.trail = []; // Clear trail after tunneling
+                    this.tunnelCooldown = 180; // 3 second cooldown
                     return;
                 }}
                 
                 // Random fading
-                if (Math.random() < 0.005) {{
-                    this.opacity = Math.random() * 0.5 + 0.1;
+                if (Math.random() < 0.008) {{
+                    this.opacity = Math.random() * 0.6 + 0.2;
                 }}
                 
                 // Movement
@@ -341,52 +352,87 @@ def inject_quantum_canvas():
                     const dy = this.entangled.y - this.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
-                    if (distance > 50) {{
-                        this.vx += dx * 0.001;
-                        this.vy += dy * 0.001;
+                    if (distance > 60) {{
+                        this.vx += dx * 0.002;
+                        this.vy += dy * 0.002;
                     }}
                 }} else {{
                     // Independent movement with some randomness
-                    this.vx += (Math.random() - 0.5) * 0.1;
-                    this.vy += (Math.random() - 0.5) * 0.1;
+                    this.vx += (Math.random() - 0.5) * 0.15;
+                    this.vy += (Math.random() - 0.5) * 0.15;
                 }}
                 
                 // Speed variation
-                const speedMultiplier = 0.5 + Math.sin(Date.now() * 0.001 + this.phase) * 0.3;
+                const speedMultiplier = 0.6 + Math.sin(Date.now() * 0.001 + this.phase) * 0.4;
                 this.x += this.vx * speedMultiplier;
                 this.y += this.vy * speedMultiplier;
                 
                 // Wrap around edges
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
+                if (this.x < -10) this.x = canvas.width + 10;
+                if (this.x > canvas.width + 10) this.x = -10;
+                if (this.y < -10) this.y = canvas.height + 10;
+                if (this.y > canvas.height + 10) this.y = -10;
                 
                 // Damping
-                this.vx *= 0.99;
-                this.vy *= 0.99;
+                this.vx *= 0.995;
+                this.vy *= 0.995;
             }}
             
             draw() {{
+                // Draw trail
+                if (this.trail.length > 1) {{
+                    ctx.save();
+                    ctx.strokeStyle = this.color + '0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    
+                    ctx.beginPath();
+                    for (let i = 0; i < this.trail.length; i++) {{
+                        const alpha = i / this.trail.length * 0.5;
+                        ctx.globalAlpha = alpha;
+                        if (i === 0) {{
+                            ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                        }} else {{
+                            ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                        }}
+                    }}
+                    ctx.stroke();
+                    ctx.restore();
+                }}
+                
+                // Draw particle
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 
-                // Glow effect
-                ctx.shadowBlur = this.entangled ? 15 : 10;
+                // Outer glow
+                ctx.shadowBlur = this.entangled ? 25 : 20;
                 ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
                 
-                // Draw particle
-                ctx.fillStyle = this.color + this.opacity + ')';
+                // Core particle
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2);
+                gradient.addColorStop(0, this.color + '1)');
+                gradient.addColorStop(0.5, this.color + '0.6)');
+                gradient.addColorStop(1, this.color + '0)');
+                
+                ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Draw entanglement connection
                 if (this.entangled && this.entangled.x < this.x) {{ // Only draw once per pair
-                    ctx.globalAlpha = 0.3;
-                    ctx.strokeStyle = this.color + '0.3)';
-                    ctx.lineWidth = 1;
-                    ctx.setLineDash([5, 5]);
+                    ctx.globalAlpha = 0.4;
+                    ctx.strokeStyle = this.color + '0.6)';
+                    ctx.lineWidth = 2;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
+                    
+                    // Animated dashed line
+                    const dashOffset = Date.now() * 0.01;
+                    ctx.setLineDash([8, 6]);
+                    ctx.lineDashOffset = dashOffset;
+                    
                     ctx.beginPath();
                     ctx.moveTo(this.x, this.y);
                     ctx.lineTo(this.entangled.x, this.entangled.y);
@@ -398,9 +444,9 @@ def inject_quantum_canvas():
             }}
         }}
         
-        // Create particles
+        // Create more particles for fuller coverage
         const particles = [];
-        const particleCount = Math.min(80, Math.floor((canvas.width * canvas.height) / 15000));
+        const particleCount = Math.min(150, Math.floor((canvas.width * canvas.height) / 8000));
         
         for (let i = 0; i < particleCount; i++) {{
             particles.push(new Particle());
@@ -419,24 +465,25 @@ def inject_quantum_canvas():
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
                     // Entangle when particles get close
-                    if (distance < 20) {{
+                    if (distance < 25) {{
                         p1.entangled = p2;
                         p2.entangled = p1;
                         
                         // Sometimes break entanglement after some time
                         setTimeout(() => {{
-                            if (Math.random() < 0.3) {{
+                            if (Math.random() < 0.4) {{
                                 if (p1.entangled === p2) p1.entangled = null;
                                 if (p2.entangled === p1) p2.entangled = null;
                             }}
-                        }}, Math.random() * 10000 + 5000);
+                        }}, Math.random() * 8000 + 4000);
                     }}
                 }}
             }}
         }}
         
         function animate() {{
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+            // Subtle fade instead of complete clear for better trails
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.08)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             particles.forEach(particle => {{
@@ -445,7 +492,7 @@ def inject_quantum_canvas():
             }});
             
             // Check for entanglement every few frames
-            if (Math.random() < 0.1) {{
+            if (Math.random() < 0.15) {{
                 checkEntanglement();
             }}
             
