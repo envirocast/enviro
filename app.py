@@ -12,7 +12,7 @@ genai.configure()
 
 st.set_page_config(
     page_title="Meet Enviro",
-    page_icon="🌿",
+    page_icon="🌐",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -391,7 +391,7 @@ def main():
     # Header section
     st.markdown("""
     <div class="header">
-        <h1 class="title">🌿 Meet Enviro</h1>
+        <h1 class="title">🌐 Meet Enviro</h1>
     </div>
     """, unsafe_allow_html=True)
     
