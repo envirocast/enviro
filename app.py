@@ -123,7 +123,7 @@ html, body, .stApp {
 .header {
     flex: 0 0 auto !important; /* Don't grow or shrink */
     text-align: center;
-    padding: 2rem 0 1rem 0;
+    padding: 1rem 0; /* Refined padding */
     position: relative;
     z-index: 20;
     background: rgba(0, 0, 0, 0.8);
@@ -160,12 +160,12 @@ html, body, .stApp {
 /* Welcome section - only shown when no messages */
 .welcome-section {
     flex: 0 0 auto !important; /* Doesn't scroll */
-    padding: 0 2rem 2rem 2rem;
+    padding: 1rem 2rem 2rem 2rem; /* Reduced top padding */
 }
 
 .welcome {
     text-align: center;
-    padding: 2rem;
+    padding: 1.5rem; /* Refined padding */
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(139, 92, 246, 0.05));
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.1);
