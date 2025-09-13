@@ -87,6 +87,8 @@ html, body, .stApp {
     color: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     overflow: hidden; /* Prevents global scrolling */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Hide Streamlit elements */
@@ -131,11 +133,11 @@ html, body, .stApp {
     padding: 0 1rem;
     position: relative;
     z-index: 10;
-    /* Added to make it fit within the page and scrollable */
-    height: calc(100vh - 120px); /* Adjust based on header/footer height */
+    /* Adjusted to fit perfectly between header and input */
+    height: calc(100vh - 120px - 80px); /* Total height minus header and input bar height */
     overflow-y: auto;
     padding-top: 120px; /* Space for the fixed header */
-    padding-bottom: 100px; /* Space for the fixed input */
+    padding-bottom: 20px; /* Small bottom padding */
 }
 
 .chat-container::-webkit-scrollbar {
@@ -154,7 +156,7 @@ html, body, .stApp {
 .message {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem; /* Reduced space between messages */
     padding: 1rem;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
@@ -223,7 +225,7 @@ html, body, .stApp {
 .welcome {
     text-align: center;
     padding: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Reduced space after the welcome message */
     background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(139, 92, 246, 0.05));
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -554,10 +556,13 @@ def main():
         # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # To display the user message immediately, we use a placeholder and then rerun
-        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-        display_message("user", prompt, "👤")
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Rerun to display the user message and start the generation process
+        st.rerun()
+
+    # After a prompt has been submitted and the page is rerunning,
+    # we check the last message to see if it's from the user and needs a response.
+    if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+        prompt = st.session_state.messages[-1]["content"]
         
         try:
             response = st.session_state.chat_session.send_message(prompt)
@@ -569,8 +574,8 @@ def main():
         except Exception as e:
             error_message = f"⚠️ **Error:** {str(e)}<br><br>Please try again in a moment."
             display_message("assistant", error_message, "⚠️")
-        
-        # Rerun to update the entire chat history and display the new messages
+
+        # Rerun once more to show the complete response
         st.rerun()
 
 if __name__ == "__main__":
