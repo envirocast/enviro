@@ -94,7 +94,7 @@ html, body, .stApp {
     color: #ffffff !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     height: 100vh !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* Prevents global scrolling */
 }
 
 .stApp > div:first-child {
@@ -108,7 +108,7 @@ html, body, .stApp {
     height: 0 !important;
 }
 
-/* App container - full height with proper flex layout */
+/* Main app container - full height with proper flex layout */
 .app-container {
     display: flex !important;
     flex-direction: column !important;
@@ -119,7 +119,7 @@ html, body, .stApp {
 
 /* Header - fixed height, no scroll */
 .header {
-    flex: 0 0 auto !important;
+    flex: 0 0 auto !important; /* Don't grow or shrink */
     text-align: center;
     padding: 2rem 0 1rem 0;
     position: relative;
@@ -147,17 +147,17 @@ html, body, .stApp {
 
 /* Main content area - flexible height */
 .main-content {
-    flex: 1 1 auto !important;
+    flex: 1 1 auto !important; /* Fills remaining space */
     display: flex !important;
     flex-direction: column !important;
-    overflow: hidden !important;
+    overflow: hidden !important; /* Prevents this container from scrolling */
     position: relative !important;
     z-index: 15 !important;
 }
 
 /* Welcome section - only shown when no messages */
 .welcome-section {
-    flex: 0 0 auto !important;
+    flex: 0 0 auto !important; /* Doesn't scroll */
     padding: 0 2rem 2rem 2rem;
 }
 
@@ -187,8 +187,8 @@ html, body, .stApp {
 
 /* Chat messages area - scrollable */
 .chat-messages {
-    flex: 1 1 auto !important;
-    overflow-y: auto !important;
+    flex: 1 1 auto !important; /* Fills remaining space */
+    overflow-y: auto !important; /* Only this section scrolls */
     padding: 0 2rem;
     margin-bottom: 1rem;
 }
@@ -280,7 +280,7 @@ html, body, .stApp {
 
 /* Chat Input - fixed at bottom */
 .chat-input-section {
-    flex: 0 0 auto !important;
+    flex: 0 0 auto !important; /* Don't grow or shrink */
     padding: 1rem 2rem 2rem 2rem;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
@@ -345,7 +345,7 @@ html, body, .stApp {
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: 1 !important;
+    z-index: 1 !important; /* Low z-index to stay behind everything */
     pointer-events: none !important;
 }
 </style>
@@ -451,7 +451,7 @@ def inject_quantum_canvas():
                 
                 // Outer glow
                 ctx.shadowBlur = this.entangled ? 40 : 25;
-                ctx.shadowColor = this.color + '0.8)';
+                ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
                 
                 // Core particle
                 const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
@@ -470,7 +470,7 @@ def inject_quantum_canvas():
                     ctx.strokeStyle = this.color + '0.7)';
                     ctx.lineWidth = 1.5;
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = this.color + '0.9)';
+                    ctx.shadowColor = this.color.slice(0, -2) + '0.9)';
                     
                     const dashOffset = Date.now() * 0.02;
                     ctx.setLineDash([10, 8]);
@@ -617,19 +617,18 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Chat messages area
-    if st.session_state.messages:
-        st.markdown('<div class="chat-messages">', unsafe_allow_html=True)
-        
-        # Display chat history
-        for message in st.session_state.messages:
-            if message["role"] == "user":
-                display_message("user", message["content"], "👤")
-            else:
-                display_message("assistant", message["content"], "🌿")
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chat-messages">', unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)  # End main-content
+    # Display chat history
+    for message in st.session_state.messages:
+        if message["role"] == "user":
+            display_message("user", message["content"], "👤")
+        else:
+            display_message("assistant", message["content"], "🌿")
+    
+    st.markdown('</div>', unsafe_allow_html=True) # End chat-messages
+    
+    st.markdown('</div>', unsafe_allow_html=True) # End main-content
     
     # Chat input section
     st.markdown('<div class="chat-input-section">', unsafe_allow_html=True)
@@ -642,8 +641,8 @@ def main():
         # Rerun to display the user message and start the generation process
         st.rerun()
 
-    st.markdown('</div>', unsafe_allow_html=True)  # End chat-input-section
-    st.markdown('</div>', unsafe_allow_html=True)  # End app-container
+    st.markdown('</div>', unsafe_allow_html=True) # End chat-input-section
+    st.markdown('</div>', unsafe_allow_html=True) # End app-container
 
     # After a prompt has been submitted and the page is rerunning,
     # we check the last message to see if it's from the user and needs a response.
