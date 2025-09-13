@@ -50,6 +50,7 @@ Always provide citations at the end of every response using good and credible so
 
 Make sure to only talk about environmental, focus only on the topics mentioned in these instructions, do not involve in anything unrelated to the topic or anything illegal or negative.
 Another topic you can talk about is quantum data. Different quantum mechanics and topics and concepts. You can relate how quantum computing and algorithms are used in EnviroCast's processes.
+Feel free to talk anything about EnviroCast.
 
 You are ONLY an informational chatbot.
 """.strip()
@@ -424,8 +425,8 @@ def main():
         st.markdown('<div class="welcome-section">', unsafe_allow_html=True)
         st.markdown("""
         <div class="welcome">
-            <h2>Welcome to EnviroCast AI</h2>
-            <p>I'm Enviro, your environmental intelligence assistant. Ask me about air quality, pollution, climate solutions, and environmental science.</p>
+            <h2>Welcome to EnviroCast's AI Chatbot</h2>
+            <p>I'm Enviro, your environmental intelligence assistant. Ask me about air quality, pollution, climate solutions, and environmental science or EnviroCast and quantum data.</p>
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -448,7 +449,7 @@ def main():
     st.markdown('<div class="chat-input-section">', unsafe_allow_html=True)
     
     # Chat input
-    if prompt := st.chat_input("Ask about environmental science, air quality, or climate solutions..."):
+    if prompt := st.chat_input("Ask about environmental science and solutions or EnviroCast..."):
         # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
