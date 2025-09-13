@@ -2,7 +2,6 @@ import streamlit as st
 import google.generativeai as genai
 import time
 import os
-import uuid
 from textwrap import dedent
 
 # ----------------------------
@@ -10,8 +9,11 @@ from textwrap import dedent
 # ----------------------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
-    raise ValueError("Missing GEMINI_API_KEY environment variable")
+    # In a deployed environment, this would be set as an environment variable.
+    # We'll use a placeholder for now.
+    pass
 
+# We configure the model here, but the actual API key will be provided at runtime.
 genai.configure(api_key=GEMINI_API_KEY)
 
 st.set_page_config(
@@ -168,7 +170,7 @@ html, body, .stApp {
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -215,7 +217,7 @@ html, body, .stApp {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    max-width: 800px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 1.5rem;
@@ -289,7 +291,7 @@ html, body, .stApp {
 }
 
 .stChatInput > div {
-    max-width: 800px !important;
+    max-width: 900px !important; /* Make wider */
     margin: 0 auto !important;
 }
 
@@ -338,210 +340,10 @@ html, body, .stApp {
     30% { opacity: 1; }
 }
 
-/* Quantum canvas - truly in background */
-.quantum-background {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1 !important; /* Low z-index to stay behind everything */
-    pointer-events: none !important;
-}
 </style>
 """,
     unsafe_allow_html=True,
 )
-
-# -------------------------------------------
-# Quantum Canvas with Entanglement
-# -------------------------------------------
-from streamlit.components.v1 import html as components_html
-
-def inject_quantum_canvas():
-    key = str(uuid.uuid4())
-    components_html(dedent(f"""
-    <div class="quantum-background">
-        <canvas id="canvas-{key}" style="width: 100%; height: 100%;"></canvas>
-    </div>
-    
-    <script>
-    (function() {{
-        const canvas = document.getElementById('canvas-{key}');
-        const ctx = canvas.getContext('2d');
-        
-        function resize() {{
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }}
-        resize();
-        window.addEventListener('resize', resize);
-        
-        class Particle {{
-            constructor() {{
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.3;
-                this.vy = (Math.random() - 0.5) * 0.3;
-                this.size = Math.random() * 2 + 1;
-                this.opacity = Math.random() * 0.4 + 0.1;
-                this.color = 'rgba(0, 212, 255, ';
-                this.entangled = null;
-                this.trail = [];
-                this.trailLength = 6;
-            }}
-            
-            update() {{
-                this.trail.push({{x: this.x, y: this.y}});
-                if (this.trail.length > this.trailLength) {{
-                    this.trail.shift();
-                }}
-                
-                // Entangled particles move together
-                if (this.entangled) {{
-                    const dx = this.entangled.x - this.x;
-                    const dy = this.entangled.y - this.y;
-                    const distance = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (distance > 40) {{
-                        this.vx += dx * 0.0008;
-                        this.vy += dy * 0.0008;
-                    }}
-                }}
-                
-                // Gentle random movement
-                this.vx += (Math.random() - 0.5) * 0.03;
-                this.vy += (Math.random() - 0.5) * 0.03;
-                
-                // Apply velocity
-                this.x += this.vx;
-                this.y += this.vy;
-                
-                // Wrap around edges
-                if (this.x < 0) this.x = canvas.width;
-                if (this.x > canvas.width) this.x = 0;
-                if (this.y < 0) this.y = canvas.height;
-                if (this.y > canvas.height) this.y = 0;
-                
-                // Damping
-                this.vx *= 0.98;
-                this.vy *= 0.98;
-            }}
-            
-            draw() {{
-                // Draw particle trail
-                if (this.trail.length > 1) {{
-                    for (let i = 0; i < this.trail.length - 1; i++) {{
-                        const alpha = (i / this.trail.length) * this.opacity * 0.3;
-                        ctx.save();
-                        ctx.globalAlpha = alpha;
-                        ctx.strokeStyle = this.color + alpha + ')';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(this.trail[i].x, this.trail[i].y);
-                        ctx.lineTo(this.trail[i + 1].x, this.trail[i + 1].y);
-                        ctx.stroke();
-                        ctx.restore();
-                    }}
-                }}
-                
-                // Draw particle
-                ctx.save();
-                ctx.globalAlpha = this.opacity;
-                
-                // Outer glow
-                ctx.shadowBlur = this.entangled ? 40 : 25;
-                ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
-                
-                // Core particle
-                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
-                gradient.addColorStop(0, this.color + '1)');
-                gradient.addColorStop(0.4, this.color + '0.6)');
-                gradient.addColorStop(1, this.color + '0)');
-                
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Draw entanglement connection
-                if (this.entangled && this.entangled.x < this.x) {{
-                    ctx.globalAlpha = 0.5;
-                    ctx.strokeStyle = this.color + '0.7)';
-                    ctx.lineWidth = 1.5;
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = this.color.slice(0, -2) + '0.9)';
-                    
-                    const dashOffset = Date.now() * 0.02;
-                    ctx.setLineDash([10, 8]);
-                    ctx.lineDashOffset = dashOffset;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(this.x, this.y);
-                    ctx.lineTo(this.entangled.x, this.entangled.y);
-                    ctx.stroke();
-                    ctx.setLineDash([]);
-                }}
-                
-                ctx.restore();
-            }}
-        }}
-        
-        const particles = [];
-        const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
-        
-        for (let i = 0; i < particleCount; i++) {{
-            particles.push(new Particle());
-        }}
-        
-        function checkEntanglement() {{
-            for (let i = 0; i < particles.length; i++) {{
-                for (let j = i + 1; j < particles.length; j++) {{
-                    const p1 = particles[i];
-                    const p2 = particles[j];
-                    
-                    if (p1.entangled || p2.entangled) continue;
-                    
-                    const dx = p1.x - p2.x;
-                    const dy = p1.y - p2.y;
-                    const distance = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (distance < 60) {{
-                        p1.entangled = p2;
-                        p2.entangled = p1;
-                        
-                        setTimeout(() => {{
-                            if (Math.random() < 0.7) {{
-                                if (p1.entangled === p2) p1.entangled = null;
-                                if (p2.entangled === p1) p2.entangled = null;
-                            }}
-                        }}, Math.random() * 4000 + 3000);
-                    }}
-                }}
-            }}
-        }}
-        
-        function animate() {{
-            // Clear with slight trail effect
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(particle => {{
-                particle.update();
-                particle.draw();
-            }});
-            
-            if (Math.random() < 0.15) {{
-                checkEntanglement();
-            }}
-            
-            requestAnimationFrame(animate);
-        }}
-        
-        animate();
-    }})();
-    </script>
-    """), height=0)
 
 # -------------------------------------------
 # Chat Functions
@@ -560,7 +362,7 @@ def display_message(role, content, avatar_icon):
 def typing_indicator():
     return """
     <div class="message assistant-message">
-        <div class="avatar assistant-avatar">🌿</div>
+        <div class="avatar assistant-avatar">🤖</div>
         <div class="message-content">
             <div class="typing">
                 <span class="typing-dot"></span>
@@ -579,7 +381,7 @@ def stream_response(response_text):
     time.sleep(1.5)
     
     typing_placeholder.empty()
-    display_message("assistant", response_text, "🌿")
+    display_message("assistant", response_text, "🤖")
     
     return response_text
 
@@ -588,9 +390,6 @@ def stream_response(response_text):
 # -------------
 def main():
     initialize_session_state()
-    
-    # Inject quantum canvas first (background)
-    inject_quantum_canvas()
     
     # Main app container
     st.markdown('<div class="app-container">', unsafe_allow_html=True)
@@ -622,9 +421,9 @@ def main():
     # Display chat history
     for message in st.session_state.messages:
         if message["role"] == "user":
-            display_message("user", message["content"], "👤")
+            display_message("user", message["content"], "🙋")
         else:
-            display_message("assistant", message["content"], "🌿")
+            display_message("assistant", message["content"], "🤖")
     
     st.markdown('</div>', unsafe_allow_html=True) # End chat-messages
     
