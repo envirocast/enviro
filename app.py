@@ -449,7 +449,7 @@ def main():
     st.markdown('<div class="chat-input-section">', unsafe_allow_html=True)
     
     # Chat input
-    if prompt := st.chat_input("Ask about environmental science and solutions or EnviroCast..."):
+    if prompt := st.chat_input("Ask me about environmental science, climate solutions or anything EnviroCast..."):
         # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
