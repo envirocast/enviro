@@ -82,28 +82,47 @@ st.markdown(
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Global reset and base styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 html, body, .stApp {
-    background: #000000;
-    color: #ffffff;
+    background: #000000 !important;
+    color: #ffffff !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    overflow: hidden; /* Prevents global scrolling */
-    display: flex;
-    flex-direction: column;
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.stApp > div:first-child {
+    height: 100vh !important;
+    overflow: hidden !important;
 }
 
 /* Hide Streamlit elements */
 #MainMenu, footer, header, .stDeployButton { 
     visibility: hidden !important; 
+    height: 0 !important;
 }
 
-/* Header */
+/* App container - full height with proper flex layout */
+.app-container {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Header - fixed height, no scroll */
 .header {
+    flex: 0 0 auto !important;
     text-align: center;
-    padding: 2rem 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    padding: 2rem 0 1rem 0;
+    position: relative;
     z-index: 20;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
@@ -126,28 +145,62 @@ html, body, .stApp {
     50% { background-position: 100% 50%; }
 }
 
-/* Chat Container */
-.chat-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    position: relative;
-    z-index: 10;
-    /* Adjusted to fit perfectly between header and input */
-    height: calc(100vh - 120px - 80px); /* Total height minus header and input bar height */
-    overflow-y: auto;
-    padding-top: 120px; /* Space for the fixed header */
-    padding-bottom: 20px; /* Small bottom padding */
+/* Main content area - flexible height */
+.main-content {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 15 !important;
 }
 
-.chat-container::-webkit-scrollbar {
+/* Welcome section - only shown when no messages */
+.welcome-section {
+    flex: 0 0 auto !important;
+    padding: 0 2rem 2rem 2rem;
+}
+
+.welcome {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(139, 92, 246, 0.05));
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.welcome h2 {
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    font-size: 1.8rem;
+}
+
+.welcome p {
+    color: #cccccc;
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+/* Chat messages area - scrollable */
+.chat-messages {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    padding: 0 2rem;
+    margin-bottom: 1rem;
+}
+
+.chat-messages::-webkit-scrollbar {
     width: 8px;
 }
-.chat-container::-webkit-scrollbar-track {
+.chat-messages::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
 }
-.chat-container::-webkit-scrollbar-thumb {
+.chat-messages::-webkit-scrollbar-thumb {
     background: #8B5CF6;
     border-radius: 10px;
 }
@@ -156,12 +209,16 @@ html, body, .stApp {
 .message {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem; /* Reduced space between messages */
-    padding: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.5rem;
 }
 
 .user-message {
@@ -221,36 +278,19 @@ html, body, .stApp {
     border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
-/* Welcome message */
-.welcome {
-    text-align: center;
-    padding: 2rem;
-    margin-bottom: 1.5rem; /* Reduced space after the welcome message */
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(139, 92, 246, 0.05));
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.welcome h2 {
-    margin-bottom: 0.5rem;
-    color: #ffffff;
-}
-
-.welcome p {
-    color: #cccccc;
-    margin: 0;
-}
-
-/* Chat Input */
-.stChatInput {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 1rem 0;
-    z-index: 30;
+/* Chat Input - fixed at bottom */
+.chat-input-section {
+    flex: 0 0 auto !important;
+    padding: 1rem 2rem 2rem 2rem;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 25;
+}
+
+.stChatInput > div {
+    max-width: 800px !important;
+    margin: 0 auto !important;
 }
 
 .stChatInput > div > div {
@@ -264,6 +304,7 @@ html, body, .stApp {
     background: transparent !important;
     color: #ffffff !important;
     border: none !important;
+    font-size: 16px !important;
 }
 
 .stChatInput button {
@@ -296,6 +337,17 @@ html, body, .stApp {
     0%, 60%, 100% { opacity: 0.3; }
     30% { opacity: 1; }
 }
+
+/* Quantum canvas - truly in background */
+.quantum-background {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -309,7 +361,7 @@ from streamlit.components.v1 import html as components_html
 def inject_quantum_canvas():
     key = str(uuid.uuid4())
     components_html(dedent(f"""
-    <div id="quantum-canvas-{key}" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none;">
+    <div class="quantum-background">
         <canvas id="canvas-{key}" style="width: 100%; height: 100%;"></canvas>
     </div>
     
@@ -329,14 +381,14 @@ def inject_quantum_canvas():
             constructor() {{
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5; // Slower movement
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 1.5;
-                this.opacity = Math.random() * 0.3 + 0.1; // Lower opacity
-                this.color = 'rgba(0, 212, 255, '; // All blue
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.size = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.color = 'rgba(0, 212, 255, ';
                 this.entangled = null;
                 this.trail = [];
-                this.trailLength = 4;
+                this.trailLength = 6;
             }}
             
             update() {{
@@ -351,15 +403,15 @@ def inject_quantum_canvas():
                     const dy = this.entangled.y - this.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
-                    if (distance > 30) {{ // Less aggressive pull
-                        this.vx += dx * 0.0005;
-                        this.vy += dy * 0.0005;
+                    if (distance > 40) {{
+                        this.vx += dx * 0.0008;
+                        this.vy += dy * 0.0008;
                     }}
                 }}
                 
                 // Gentle random movement
-                this.vx += (Math.random() - 0.5) * 0.05;
-                this.vy += (Math.random() - 0.5) * 0.05;
+                this.vx += (Math.random() - 0.5) * 0.03;
+                this.vy += (Math.random() - 0.5) * 0.03;
                 
                 // Apply velocity
                 this.x += this.vx;
@@ -372,40 +424,56 @@ def inject_quantum_canvas():
                 if (this.y > canvas.height) this.y = 0;
                 
                 // Damping
-                this.vx *= 0.99;
-                this.vy *= 0.99;
+                this.vx *= 0.98;
+                this.vy *= 0.98;
             }}
             
             draw() {{
+                // Draw particle trail
+                if (this.trail.length > 1) {{
+                    for (let i = 0; i < this.trail.length - 1; i++) {{
+                        const alpha = (i / this.trail.length) * this.opacity * 0.3;
+                        ctx.save();
+                        ctx.globalAlpha = alpha;
+                        ctx.strokeStyle = this.color + alpha + ')';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                        ctx.lineTo(this.trail[i + 1].x, this.trail[i + 1].y);
+                        ctx.stroke();
+                        ctx.restore();
+                    }}
+                }}
+                
                 // Draw particle
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 
                 // Outer glow
-                ctx.shadowBlur = this.entangled ? 35 : 20;
-                ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
+                ctx.shadowBlur = this.entangled ? 40 : 25;
+                ctx.shadowColor = this.color + '0.8)';
                 
                 // Core particle
-                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 2);
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 3);
                 gradient.addColorStop(0, this.color + '1)');
-                gradient.addColorStop(0.5, this.color + '0.6)');
+                gradient.addColorStop(0.4, this.color + '0.6)');
                 gradient.addColorStop(1, this.color + '0)');
                 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Draw entanglement connection
-                if (this.entangled && this.entangled.x < this.x) {{ // Only draw once per pair
-                    ctx.globalAlpha = 0.4;
-                    ctx.strokeStyle = this.color + '0.6)';
-                    ctx.lineWidth = 1; // Thinner lines
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
+                if (this.entangled && this.entangled.x < this.x) {{
+                    ctx.globalAlpha = 0.5;
+                    ctx.strokeStyle = this.color + '0.7)';
+                    ctx.lineWidth = 1.5;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = this.color + '0.9)';
                     
-                    const dashOffset = Date.now() * 0.01;
-                    ctx.setLineDash([8, 6]);
+                    const dashOffset = Date.now() * 0.02;
+                    ctx.setLineDash([10, 8]);
                     ctx.lineDashOffset = dashOffset;
                     
                     ctx.beginPath();
@@ -420,7 +488,7 @@ def inject_quantum_canvas():
         }}
         
         const particles = [];
-        const particleCount = Math.floor((canvas.width * canvas.height) / 8000); // Fills more of the screen
+        const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
         
         for (let i = 0; i < particleCount; i++) {{
             particles.push(new Particle());
@@ -438,23 +506,24 @@ def inject_quantum_canvas():
                     const dy = p1.y - p2.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
-                    if (distance < 50) {{ // Entangle at a wider distance
+                    if (distance < 60) {{
                         p1.entangled = p2;
                         p2.entangled = p1;
                         
                         setTimeout(() => {{
-                            if (Math.random() < 0.6) {{ // Higher chance to break
+                            if (Math.random() < 0.7) {{
                                 if (p1.entangled === p2) p1.entangled = null;
                                 if (p2.entangled === p1) p2.entangled = null;
                             }}
-                        }}, Math.random() * 5000 + 2000); // Shorter entanglement duration
+                        }}, Math.random() * 4000 + 3000);
                     }}
                 }}
             }}
         }}
         
         function animate() {{
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            // Clear with slight trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             particles.forEach(particle => {{
@@ -462,7 +531,7 @@ def inject_quantum_canvas():
                 particle.draw();
             }});
             
-            if (Math.random() < 0.2) {{ // Check for entanglement more frequently
+            if (Math.random() < 0.15) {{
                 checkEntanglement();
             }}
             
@@ -520,36 +589,50 @@ def stream_response(response_text):
 def main():
     initialize_session_state()
     
-    # Inject quantum canvas
+    # Inject quantum canvas first (background)
     inject_quantum_canvas()
     
-    # Header
+    # Main app container
+    st.markdown('<div class="app-container">', unsafe_allow_html=True)
+    
+    # Header section
     st.markdown("""
     <div class="header">
         <h1 class="title">🌿 Meet Enviro</h1>
     </div>
     """, unsafe_allow_html=True)
     
-    # Chat container
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    # Main content area
+    st.markdown('<div class="main-content">', unsafe_allow_html=True)
     
-    # Welcome message
+    # Welcome section (only show when no messages)
     if not st.session_state.messages:
+        st.markdown('<div class="welcome-section">', unsafe_allow_html=True)
         st.markdown("""
         <div class="welcome">
             <h2>Welcome to EnviroCast AI</h2>
             <p>I'm Enviro, your environmental intelligence assistant. Ask me about air quality, pollution, climate solutions, and environmental science.</p>
         </div>
         """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Display chat history
-    for message in st.session_state.messages:
-        if message["role"] == "user":
-            display_message("user", message["content"], "👤")
-        else:
-            display_message("assistant", message["content"], "🌿")
+    # Chat messages area
+    if st.session_state.messages:
+        st.markdown('<div class="chat-messages">', unsafe_allow_html=True)
+        
+        # Display chat history
+        for message in st.session_state.messages:
+            if message["role"] == "user":
+                display_message("user", message["content"], "👤")
+            else:
+                display_message("assistant", message["content"], "🌿")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)  # End main-content
+    
+    # Chat input section
+    st.markdown('<div class="chat-input-section">', unsafe_allow_html=True)
     
     # Chat input
     if prompt := st.chat_input("Ask about environmental science, air quality, or climate solutions..."):
@@ -558,6 +641,9 @@ def main():
         
         # Rerun to display the user message and start the generation process
         st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)  # End chat-input-section
+    st.markdown('</div>', unsafe_allow_html=True)  # End app-container
 
     # After a prompt has been submitted and the page is rerunning,
     # we check the last message to see if it's from the user and needs a response.
