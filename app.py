@@ -293,7 +293,7 @@ html, body, .stApp {
 .stChatInput > div > div {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important; /* More visible border */
     border-radius: 12px !important;
 }
 
@@ -302,6 +302,7 @@ html, body, .stApp {
     color: #ffffff !important;
     border: none !important;
     font-size: 16px !important;
+    padding: 0.5rem 1rem !important; /* Added padding */
 }
 
 .stChatInput button {
@@ -321,6 +322,25 @@ html, body, .stApp {
 @keyframes blink {
     from, to { color: transparent; }
     50% { color: white; }
+}
+
+/* --- Mobile Styles --- */
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem;
+    }
+    .welcome h2 {
+        font-size: 1.5rem;
+    }
+    .welcome p {
+        font-size: 1rem;
+    }
+    .chat-messages, .chat-input-section {
+        padding: 0 1rem;
+    }
+    .message {
+        padding: 1rem;
+    }
 }
 
 </style>
