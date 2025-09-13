@@ -7,14 +7,8 @@ from textwrap import dedent
 # ----------------------------
 # Config & API initialization
 # ----------------------------
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    # In a deployed environment, this would be set as an environment variable.
-    # We'll use a placeholder for now.
-    pass
-
 # We configure the model here, but the actual API key will be provided at runtime.
-genai.configure(api_key=GEMINI_API_KEY)
+genai.configure()
 
 st.set_page_config(
     page_title="Meet Enviro",
@@ -225,13 +219,13 @@ html, body, .stApp {
 
 .user-message {
     flex-direction: row-reverse;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.05));
-    border-color: rgba(0, 212, 255, 0.3);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .assistant-message {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
-    border-color: rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.05));
+    border-color: rgba(0, 212, 255, 0.3);
 }
 
 .avatar {
@@ -246,11 +240,12 @@ html, body, .stApp {
 }
 
 .user-avatar {
-    background: linear-gradient(135deg, #00D4FF, #0EA5E9);
+    background: linear-gradient(135deg, #ffffff, #e0e0e0);
+    color: #000000;
 }
 
 .assistant-avatar {
-    background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
 }
 
 .message-content {
@@ -316,28 +311,16 @@ html, body, .stApp {
     color: #ffffff !important;
 }
 
-/* Typing indicator */
-.typing {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    color: #8B5CF6;
+/* Typing effect cursor */
+.typing-cursor {
+    animation: blink 1s step-end infinite;
+    font-weight: bold;
+    color: #ffffff;
 }
 
-.typing-dot {
-    width: 6px;
-    height: 6px;
-    background: #8B5CF6;
-    border-radius: 50%;
-    animation: typing 1.5s ease-in-out infinite;
-}
-
-.typing-dot:nth-child(2) { animation-delay: 0.3s; }
-.typing-dot:nth-child(3) { animation-delay: 0.6s; }
-
-@keyframes typing {
-    0%, 60%, 100% { opacity: 0.3; }
-    30% { opacity: 1; }
+@keyframes blink {
+    from, to { color: transparent; }
+    50% { color: white; }
 }
 
 </style>
@@ -359,31 +342,17 @@ def display_message(role, content, avatar_icon):
     </div>
     """, unsafe_allow_html=True)
 
-def typing_indicator():
-    return """
-    <div class="message assistant-message">
-        <div class="avatar assistant-avatar">🤖</div>
-        <div class="message-content">
-            <div class="typing">
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span class="typing-dot"></span>
-                <span style="margin-left: 0.5rem;">Enviro is analyzing...</span>
-            </div>
-        </div>
-    </div>
-    """
-
-def stream_response(response_text):
-    typing_placeholder = st.empty()
-    typing_placeholder.markdown(typing_indicator(), unsafe_allow_html=True)
+def stream_response(response):
+    message_placeholder = st.empty()
+    full_response = ""
+    for chunk in response:
+        full_response += chunk.text
+        message_placeholder.markdown(f'<div class="message assistant-message"><div class="avatar assistant-avatar">🌐</div><div class="message-content">{full_response} <span class="typing-cursor">|</span></div></div>', unsafe_allow_html=True)
+        time.sleep(0.01) # A small delay to create a typing effect
     
-    time.sleep(1.5)
-    
-    typing_placeholder.empty()
-    display_message("assistant", response_text, "🤖")
-    
-    return response_text
+    # Replace with the final, complete message
+    message_placeholder.markdown(f'<div class="message assistant-message"><div class="avatar assistant-avatar">🌐</div><div class="message-content">{full_response}</div></div>', unsafe_allow_html=True)
+    return full_response
 
 # -------------
 # Main App
@@ -418,9 +387,9 @@ def main():
     # Display chat history
     for message in st.session_state.messages:
         if message["role"] == "user":
-            display_message("user", message["content"], "🙋")
+            display_message("user", message["content"], "👤")
         else:
-            display_message("assistant", message["content"], "🤖")
+            display_message("assistant", message["content"], "🌐")
     
     st.markdown('</div>', unsafe_allow_html=True) # End chat-messages
     
@@ -446,8 +415,8 @@ def main():
         prompt = st.session_state.messages[-1]["content"]
         
         try:
-            response = st.session_state.chat_session.send_message(prompt)
-            full_response = stream_response(response.text)
+            response = st.session_state.chat_session.send_message(prompt, stream=True)
+            full_response = stream_response(response)
             
             # Add assistant message to history
             st.session_state.messages.append({"role": "assistant", "content": full_response})
