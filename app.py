@@ -82,13 +82,11 @@ st.markdown(
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-* {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-}
-
-.stApp {
-    background: #0a0a0a;
+html, body, .stApp {
+    background: #000000;
     color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    overflow: hidden; /* Prevents global scrolling */
 }
 
 /* Hide Streamlit elements */
@@ -100,9 +98,12 @@ st.markdown(
 .header {
     text-align: center;
     padding: 2rem 0;
-    position: relative;
-    z-index: 10;
-    background: rgba(10, 10, 10, 0.8);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(20px);
 }
 
@@ -127,9 +128,26 @@ st.markdown(
 .chat-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0 1rem 100px 1rem;
+    padding: 0 1rem;
     position: relative;
     z-index: 10;
+    /* Added to make it fit within the page and scrollable */
+    height: calc(100vh - 120px); /* Adjust based on header/footer height */
+    overflow-y: auto;
+    padding-top: 120px; /* Space for the fixed header */
+    padding-bottom: 100px; /* Space for the fixed input */
+}
+
+.chat-container::-webkit-scrollbar {
+    width: 8px;
+}
+.chat-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.chat-container::-webkit-scrollbar-thumb {
+    background: #8B5CF6;
+    border-radius: 10px;
 }
 
 /* Messages */
@@ -222,6 +240,17 @@ st.markdown(
 }
 
 /* Chat Input */
+.stChatInput {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem 0;
+    z-index: 30;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+}
+
 .stChatInput > div > div {
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(20px) !important;
@@ -298,115 +327,60 @@ def inject_quantum_canvas():
             constructor() {{
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 3;
-                this.vy = (Math.random() - 0.5) * 3;
+                this.vx = (Math.random() - 0.5) * 0.5; // Slower movement
+                this.vy = (Math.random() - 0.5) * 0.5;
                 this.size = Math.random() * 2 + 1.5;
-                this.opacity = Math.random() * 0.6 + 0.4;
-                this.phase = Math.random() * Math.PI * 2;
-                this.speed = Math.random() * 2 + 0.5;
+                this.opacity = Math.random() * 0.3 + 0.1; // Lower opacity
+                this.color = 'rgba(0, 212, 255, '; // All blue
                 this.entangled = null;
-                this.color = this.getRandomColor();
-                this.tunnelCooldown = 0;
                 this.trail = [];
-                this.trailLength = 8;
-            }}
-            
-            getRandomColor() {{
-                const colors = [
-                    'rgba(0, 212, 255, ',
-                    'rgba(139, 92, 246, ',
-                    'rgba(16, 185, 129, ',
-                    'rgba(236, 72, 153, ',
-                    'rgba(245, 158, 11, '
-                ];
-                return colors[Math.floor(Math.random() * colors.length)];
+                this.trailLength = 4;
             }}
             
             update() {{
-                if (this.tunnelCooldown > 0) this.tunnelCooldown--;
-                
-                // Add current position to trail
                 this.trail.push({{x: this.x, y: this.y}});
                 if (this.trail.length > this.trailLength) {{
                     this.trail.shift();
                 }}
                 
-                // Quantum tunneling (teleportation)
-                if (Math.random() < 0.002 && this.tunnelCooldown === 0) {{
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.trail = []; // Clear trail after tunneling
-                    this.tunnelCooldown = 180; // 3 second cooldown
-                    return;
-                }}
-                
-                // Random fading
-                if (Math.random() < 0.008) {{
-                    this.opacity = Math.random() * 0.6 + 0.2;
-                }}
-                
-                // Movement
+                // Entangled particles move together
                 if (this.entangled) {{
-                    // Entangled particles move together
                     const dx = this.entangled.x - this.x;
                     const dy = this.entangled.y - this.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
-                    if (distance > 60) {{
-                        this.vx += dx * 0.002;
-                        this.vy += dy * 0.002;
+                    if (distance > 30) {{ // Less aggressive pull
+                        this.vx += dx * 0.0005;
+                        this.vy += dy * 0.0005;
                     }}
-                }} else {{
-                    // Independent movement with some randomness
-                    this.vx += (Math.random() - 0.5) * 0.15;
-                    this.vy += (Math.random() - 0.5) * 0.15;
                 }}
                 
-                // Speed variation
-                const speedMultiplier = 0.6 + Math.sin(Date.now() * 0.001 + this.phase) * 0.4;
-                this.x += this.vx * speedMultiplier;
-                this.y += this.vy * speedMultiplier;
+                // Gentle random movement
+                this.vx += (Math.random() - 0.5) * 0.05;
+                this.vy += (Math.random() - 0.5) * 0.05;
+                
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
                 
                 // Wrap around edges
-                if (this.x < -10) this.x = canvas.width + 10;
-                if (this.x > canvas.width + 10) this.x = -10;
-                if (this.y < -10) this.y = canvas.height + 10;
-                if (this.y > canvas.height + 10) this.y = -10;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.y < 0) this.y = canvas.height;
+                if (this.y > canvas.height) this.y = 0;
                 
                 // Damping
-                this.vx *= 0.995;
-                this.vy *= 0.995;
+                this.vx *= 0.99;
+                this.vy *= 0.99;
             }}
             
             draw() {{
-                // Draw trail
-                if (this.trail.length > 1) {{
-                    ctx.save();
-                    ctx.strokeStyle = this.color + '0.3)';
-                    ctx.lineWidth = 2;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    
-                    ctx.beginPath();
-                    for (let i = 0; i < this.trail.length; i++) {{
-                        const alpha = i / this.trail.length * 0.5;
-                        ctx.globalAlpha = alpha;
-                        if (i === 0) {{
-                            ctx.moveTo(this.trail[i].x, this.trail[i].y);
-                        }} else {{
-                            ctx.lineTo(this.trail[i].x, this.trail[i].y);
-                        }}
-                    }}
-                    ctx.stroke();
-                    ctx.restore();
-                }}
-                
                 // Draw particle
                 ctx.save();
                 ctx.globalAlpha = this.opacity;
                 
                 // Outer glow
-                ctx.shadowBlur = this.entangled ? 25 : 20;
+                ctx.shadowBlur = this.entangled ? 35 : 20;
                 ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
                 
                 // Core particle
@@ -424,11 +398,10 @@ def inject_quantum_canvas():
                 if (this.entangled && this.entangled.x < this.x) {{ // Only draw once per pair
                     ctx.globalAlpha = 0.4;
                     ctx.strokeStyle = this.color + '0.6)';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1; // Thinner lines
                     ctx.shadowBlur = 10;
                     ctx.shadowColor = this.color.slice(0, -2) + '0.8)';
                     
-                    // Animated dashed line
                     const dashOffset = Date.now() * 0.01;
                     ctx.setLineDash([8, 6]);
                     ctx.lineDashOffset = dashOffset;
@@ -444,9 +417,8 @@ def inject_quantum_canvas():
             }}
         }}
         
-        // Create more particles for fuller coverage
         const particles = [];
-        const particleCount = Math.min(150, Math.floor((canvas.width * canvas.height) / 8000));
+        const particleCount = Math.floor((canvas.width * canvas.height) / 8000); // Fills more of the screen
         
         for (let i = 0; i < particleCount; i++) {{
             particles.push(new Particle());
@@ -464,26 +436,23 @@ def inject_quantum_canvas():
                     const dy = p1.y - p2.y;
                     const distance = Math.sqrt(dx*dx + dy*dy);
                     
-                    // Entangle when particles get close
-                    if (distance < 25) {{
+                    if (distance < 50) {{ // Entangle at a wider distance
                         p1.entangled = p2;
                         p2.entangled = p1;
                         
-                        // Sometimes break entanglement after some time
                         setTimeout(() => {{
-                            if (Math.random() < 0.4) {{
+                            if (Math.random() < 0.6) {{ // Higher chance to break
                                 if (p1.entangled === p2) p1.entangled = null;
                                 if (p2.entangled === p1) p2.entangled = null;
                             }}
-                        }}, Math.random() * 8000 + 4000);
+                        }}, Math.random() * 5000 + 2000); // Shorter entanglement duration
                     }}
                 }}
             }}
         }}
         
         function animate() {{
-            // Subtle fade instead of complete clear for better trails
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.08)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             particles.forEach(particle => {{
@@ -491,8 +460,7 @@ def inject_quantum_canvas():
                 particle.draw();
             }});
             
-            // Check for entanglement every few frames
-            if (Math.random() < 0.15) {{
+            if (Math.random() < 0.2) {{ // Check for entanglement more frequently
                 checkEntanglement();
             }}
             
@@ -534,14 +502,11 @@ def typing_indicator():
     """
 
 def stream_response(response_text):
-    # Show typing indicator
     typing_placeholder = st.empty()
     typing_placeholder.markdown(typing_indicator(), unsafe_allow_html=True)
     
-    # Simulate thinking time
     time.sleep(1.5)
     
-    # Clear typing indicator and show response
     typing_placeholder.empty()
     display_message("assistant", response_text, "🌿")
     
@@ -589,11 +554,11 @@ def main():
         # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Display user message
+        # To display the user message immediately, we use a placeholder and then rerun
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
         display_message("user", prompt, "👤")
+        st.markdown('</div>', unsafe_allow_html=True)
         
-        # Get and display AI response
         try:
             response = st.session_state.chat_session.send_message(prompt)
             full_response = stream_response(response.text)
@@ -605,7 +570,7 @@ def main():
             error_message = f"⚠️ **Error:** {str(e)}<br><br>Please try again in a moment."
             display_message("assistant", error_message, "⚠️")
         
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Rerun to update the entire chat history and display the new messages
         st.rerun()
 
 if __name__ == "__main__":
