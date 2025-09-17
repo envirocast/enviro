@@ -115,7 +115,24 @@ Pattern Recognition -> Classical Models (15 minutes) vs. EnviroCast's Quantum Mo
 Environmental Impact: 87% Carbon Footprint Reduction (Lower energy consumption compared to classical supercomputers), 99.2% Computational Efficiency (Resource utilization efficiency in quantum processing), 95.4% Prediction Reliability (Accuracy in 30-day environmental forecasts)
 
 MODELS (https://envirocast.github.io/models):
-Quantum Particle Physics Simulation -> demonstrates Quantum Physics concepts (Quantum Superposition, Quantum Entanglement, Quantum Tunneling, Heisenberg Uncertainty, Wave-Particle Duality, Observer Effect) and shows real-time quantum statistics
+Quantum Particle Physics Simulation:
+Interactive quantum mechanics demonstration showing superposition, entanglement, and tunneling (Click on particles to view their quantum properties • Watch for entanglement when particles collide)
+Allows to visualize quantum superposition, quantum entanglement, quantum tunneling, Heisenberg uncertainty, wave-particle duality, observer effect
+Shows real-time quantum statistics
+Analyze particles (position, velocity, energy level, quantum state, entanglement status, tunneling status, uncertainty and error)
+
+Global Environment Simulation:
+Interactive modeling of environmental systems, climate change, and human impact
+User can set timeline and events based on Current Trajectory, Green Revolution, Climate Crisis, Global Intervention
+Global Environmental Status across 6 regions (North America, Amazon Basin, Sahara Region, Arctic Circle, Southeast Asia, and Europe) - Each region has statistics for temperature, air quality, health risk, species, precipitation and population density
+Users can manipulate variables considered (Temperature, Pollution, Biodiversity, Population, Climate)
+Users can manipulate human variables (Impact of Industrialization, Renewable Energy Prevalence, Impact of Deforestation, Impact of Urbanization, Carbon Emissions, Conservation Efforts)
+Users can visualize density, temperature, and pressure on the 4 atmospheric layers (Troposphere, Stratosphere, Mesosphere, Thermosphere)
+Based on variables manipulated by users, environmental impact varies in range [Sustainable, Manageable, Critical, Catastrophic] - other variables shown (global temperature, CO2 level, forest cover, sea level, climate change, biodiversity loss, pollution level, health impact, migration, ocean health, food security, temperature trends, biodiversity trends, ice coverage)
+Scenario Outcomes & Projections vary based on user variables - Short-Term (temperature, air quality, coastal effects) & Long-Term (ecosystem adaptability, food system, technological solutions)
+Provides effective mitigation strategies for the environment based on environmental impact
+Provides model performance statistics (data processing, coverage area, model accuracy, update frequency)
+Bases data on EnviroNex API, NASA TEMPO Satellite Data, and NOAA Climate Data (all APIs are accessible)
 
 Quantum Processing Hub:
 Shows active quantum bits, classical processors, quantum coherence, and data points processed
