@@ -832,6 +832,43 @@ footer {{
     height: 0 !important;
 }}
 
+/* Remove background from sidebar text elements */
+.stSidebar .stMarkdown,
+.stSidebar .stMarkdown * {{
+    background: transparent !important;
+    background-color: transparent !important;
+}}
+
+/* Remove background from sidebar headings */
+.stSidebar h1, 
+.stSidebar h2, 
+.stSidebar h3, 
+.stSidebar h4, 
+.stSidebar h5, 
+.stSidebar h6 {{
+    background: transparent !important;
+    background-color: transparent !important;
+}}
+
+/* Remove background from sidebar labels and text */
+.stSidebar label,
+.stSidebar .stSelectbox label,
+.stSidebar .stSlider label,
+.stSidebar .stCheckbox label,
+.stSidebar span,
+.stSidebar p {{
+    background: transparent !important;
+    background-color: transparent !important;
+}}
+
+/* Force all sidebar text containers to be transparent */
+.stSidebar .element-container,
+.stSidebar .stVerticalBlock,
+.stSidebar .stHorizontalBlock {{
+    background: transparent !important;
+    background-color: transparent !important;
+}}
+
 .stDeployButton {{
     visibility: hidden !important;
 }}
@@ -855,6 +892,17 @@ footer {{
 .stSidebar > div:first-child {{
     background: {palette['bg_secondary']} !important;
     border-right: 1px solid {palette['primary']}40 !important;
+}}
+
+/* Ensure all sidebar content has transparent backgrounds except the main container */
+.stSidebar * {{
+    background-color: transparent !important;
+}}
+
+/* But keep the main sidebar containers with the theme background */
+.stSidebar,
+.stSidebar > div:first-child {{
+    background: {palette['bg_secondary']} !important;
 }}
 
 /* Remove the vertical line after the header and before Reset button */
