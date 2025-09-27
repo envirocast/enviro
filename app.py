@@ -634,6 +634,8 @@ def render_sidebar():
             st.session_state.language = "English"
             update_chat_model()
             st.rerun()
+
+        st.text("Powered by Grok AI")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
