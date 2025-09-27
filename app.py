@@ -365,7 +365,7 @@ def initialize_session_state():
     if "reading_level" not in st.session_state:
         st.session_state.reading_level = "High School"
     if "color_palette" not in st.session_state:
-        st.session_state.color_palette = "Default"
+        st.session_state.color_palette = "Enviro Cyber"
     if "chat_density" not in st.session_state:
         st.session_state.chat_density = "Standard"
     if "animation_speed" not in st.session_state:
@@ -550,7 +550,7 @@ def render_sidebar():
         # Color Palettes
         st.markdown("### Color Theme")
         
-        palette_options = list(COLOR_PALETTES.keys()) if COLOR_PALETTES else ["Default"]
+        palette_options = list(COLOR_PALETTES.keys()) if COLOR_PALETTES else ["Enviro Cyber"]
         if st.session_state.color_palette not in palette_options:
             st.session_state.color_palette = palette_options[0]
         
@@ -625,7 +625,7 @@ def render_sidebar():
             st.session_state.font_size = 16
             st.session_state.response_length = "Standard"
             st.session_state.reading_level = "High School"
-            st.session_state.color_palette = "Default"
+            st.session_state.color_palette = "Enviro Cyber"
             st.session_state.chat_density = "Standard"
             st.session_state.animation_speed = "Fast"
             st.session_state.show_timestamps = False
