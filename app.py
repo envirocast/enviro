@@ -25,15 +25,8 @@ st.set_page_config(
 )
 
 # --------------------------------
-# Model configuration & system msg
+# Configuration
 # --------------------------------
-generation_config = {
-    "temperature": 0,
-    "top_p": 0.95,
-    "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
-}
 
 SYSTEM_INSTRUCTION = """
 Your name is Enviro. You are the Large Language Model/AI Chatbot for EnviroCast.
@@ -190,6 +183,35 @@ You are ONLY an informational chatbot.
 
 **When Deep Research is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
 """.strip()
+
+def call_grok_api(messages, stream=False):
+    """Call the Grok API via OpenRouter"""
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://enviro-ai.streamlit.app/",
+        "X-Title": "EnviroCast AI Chatbot",
+    }
+    
+    data = {
+        "model": "x-ai/grok-4-fast:free",
+        "messages": messages,
+        "temperature": 0.1,
+        "max_tokens": 8192,
+        "stream": stream
+    }
+    
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers=headers,
+        data=json.dumps(data),
+        stream=stream
+    )
+    
+    if not response.ok:
+        raise Exception(f"API request failed: {response.status_code} - {response.text}")
+    
+    return response
 
 # ------------------------
 # Color Palettes
@@ -360,15 +382,8 @@ def initialize_session_state():
     # Build dynamic system instruction based on preferences
     dynamic_instruction = build_dynamic_system_instruction()
     
-    if "chat_model" not in st.session_state:
-        st.session_state.chat_model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config=generation_config,
-            system_instruction=dynamic_instruction,
-        )
-
-    if "chat_session" not in st.session_state:
-        st.session_state.chat_session = st.session_state.chat_model.start_chat(history=[])
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = []
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -394,14 +409,8 @@ Adjust your responses to match these preferences while maintaining accuracy and 
 
 def update_chat_model():
     """Update the chat model with new system instruction when preferences change"""
-    dynamic_instruction = build_dynamic_system_instruction()
-    st.session_state.chat_model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config=generation_config,
-        system_instruction=dynamic_instruction,
-    )
-    # Start a new chat session with updated model
-    st.session_state.chat_session = st.session_state.chat_model.start_chat(history=[])
+    # For Grok, we don't need to recreate a model, just clear the messages
+    st.session_state.chat_messages = []
 
 def searchwebquery(query):
     url = "https://duckduckgo-api.up.railway.app/search"
@@ -1315,7 +1324,7 @@ def display_message(role, content, avatar_icon, timestamp=None):
     </div>
     """, unsafe_allow_html=True)
 
-def stream_response(response):
+def stream_response(response_text):
     # Get animation speed
     speed_map = {"Off": 0, "Slow": 0.05, "Normal": 0.02, "Fast": 0.01}
     typing_speed = speed_map[st.session_state.animation_speed]
@@ -1335,25 +1344,22 @@ def stream_response(response):
 
     # 2. Clear the analyzing message and prepare for streaming
     analyzing_placeholder.empty()
-    full_response = ""
     message_placeholder = st.empty()
     
     # 3. Stream the response (skip if animation is off)
     if typing_speed == 0:
         # No animation - show full response immediately
-        for chunk in response:
-            full_response += chunk.text
-        
         message_placeholder.markdown(f"""
             <div class="message assistant-message">
                 <div class="avatar assistant-avatar">🌐</div>
-                <div class="message-content">{full_response}</div>
+                <div class="message-content">{response_text}</div>
             </div>
         """, unsafe_allow_html=True)
     else:
         # Animated typing
-        for chunk in response:
-            full_response += chunk.text
+        full_response = ""
+        for char in response_text:
+            full_response += char
             message_placeholder.markdown(f"""
                 <div class="message assistant-message">
                     <div class="avatar assistant-avatar">🌐</div>
@@ -1366,11 +1372,11 @@ def stream_response(response):
         message_placeholder.markdown(f"""
             <div class="message assistant-message">
                 <div class="avatar assistant-avatar">🌐</div>
-                <div class="message-content">{full_response}</div>
+                <div class="message-content">{response_text}</div>
             </div>
         """, unsafe_allow_html=True)
     
-    return full_response
+    return response_text
 
 # -------------
 # Main App
@@ -1480,18 +1486,25 @@ def main():
     </script>
     """, unsafe_allow_html=True)
 
-    # After a prompt has been submitted and the page is rerunning,
-    # we check the last message to see if it's from the user and needs a response.
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         prompt = st.session_state.messages[-1]["content"]
         
         try:
-            # Prepare content for the model
-            content_parts = [prompt]
+            # Build messages for Grok API
+            api_messages = [{"role": "system", "content": build_dynamic_system_instruction()}]
             
-            # Send message with all content parts
-            response = st.session_state.chat_session.send_message(content_parts, stream=True)
-            full_response = stream_response(response)
+            # Add conversation history
+            for msg in st.session_state.messages:
+                api_messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+            
+            # Call Grok API
+            response = call_grok_api(api_messages, stream=False)
+            response_data = response.json()
+            
+            full_response = response_data["choices"][0]["message"]["content"]
             
             # Add timestamp if enabled
             timestamp = ""
@@ -1517,7 +1530,7 @@ def main():
                 "content": error_message,
                 "timestamp": timestamp
             })
-
+    
         # Rerun once more to show the complete response
         st.rerun()
 
