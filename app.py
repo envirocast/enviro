@@ -1233,8 +1233,8 @@ footer {{
 }}
 
 @keyframes blink {{
-    from, to { color: transparent; }
-    50% { color: white; }
+    from, to {{ color: transparent; }}
+    50% {{ color: white; }}
 }}
 
 /* Mobile Styles */
