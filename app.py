@@ -760,9 +760,17 @@ html, body, .stApp {{
     height: 100vh !important;
 }}
 
-/* Force font on all text elements - FAMILY ONLY, preserve sizes */
-.stApp, .stApp * {{
-    font-family: {font_stack} !important;
+/* Target only the main containers, not all divs */
+[data-testid="stAppViewContainer"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+[data-testid="stMain"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+.main .block-container {{
+    background: {palette['bg_primary']} !important;
 }}
 
 /* Specifically target common text elements - FONT FAMILY ONLY */
@@ -1138,15 +1146,11 @@ footer {{
     background: {palette['bg_primary']} !important;
 }}
 
-/* Force footer to be completely black and hidden */
+/* Footer fixes - keep these */
 footer, .stApp footer, [data-testid="stFooter"] {{
     background: {palette['bg_primary']} !important;
-    background-color: {palette['bg_primary']} !important;
     visibility: hidden !important;
     height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
     display: none !important;
 }}
 
@@ -1165,11 +1169,6 @@ div[class*="footer"], div[id*="footer"] {{
 
 /* Force main app container background */
 [data-testid="stAppViewContainer"] > .main {{
-    background: {palette['bg_primary']} !important;
-}}
-
-/* Force all container backgrounds */
-.stApp, .stApp > div, .main > .block-container {{
     background: {palette['bg_primary']} !important;
 }}
 
