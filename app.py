@@ -1435,7 +1435,7 @@ def stream_response_direct(response_text):
             
             # Every 10 words, add a small pause for more natural typing
             if i > 0 and i % 10 == 0:
-                time.sleep(0.2)
+                time.sleep(0.1)
 
         # Final render without cursor
         message_placeholder.markdown(f"""
