@@ -635,7 +635,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.text("Powered by Grok AI")
+        st.caption("Powered by Grok AI")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
