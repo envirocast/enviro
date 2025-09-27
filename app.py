@@ -1392,6 +1392,59 @@ def stream_response(response_text):
     
     return response_text
 
+def stream_response_direct(response_text):
+    """Stream response directly without the analyzing message (since it's already shown)"""
+    # Get animation speed
+    speed_map = {"Off": 0, "Slow": 0.05, "Normal": 0.02, "Fast": 0.01}
+    typing_speed = speed_map[st.session_state.animation_speed]
+    
+    message_placeholder = st.empty()
+    
+    # Stream the response
+    if typing_speed == 0:
+        # No animation - show full response immediately
+        message_placeholder.markdown(f"""
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">{response_text}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Animated typing - word by word (better performance)
+        words = response_text.split(' ')
+        displayed_text = ""
+        
+        for i, word in enumerate(words):
+            if i == 0:
+                displayed_text = word
+            else:
+                displayed_text += " " + word
+            
+            # Show cursor while typing
+            message_placeholder.markdown(f"""
+                <div class="message assistant-message">
+                    <div class="avatar assistant-avatar">🌐</div>
+                    <div class="message-content">{displayed_text}<span class="typing-cursor">|</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Add delay based on animation speed (adjust multiplier for word speed)
+            time.sleep(typing_speed * 3)  # Multiply by 3 since we're doing words instead of characters
+            
+            # Every 10 words, add a small pause for more natural typing
+            if i > 0 and i % 10 == 0:
+                time.sleep(0.2)
+
+        # Final render without cursor
+        message_placeholder.markdown(f"""
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">{response_text}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    return response_text
+
 # -------------
 # Main App
 # -------------
@@ -1500,8 +1553,22 @@ def main():
     </script>
     """, unsafe_allow_html=True)
 
+    # After a prompt has been submitted and the page is rerunning,
+    # we check the last message to see if it's from the user and needs a response.
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         prompt = st.session_state.messages[-1]["content"]
+        
+        # Show "Enviro is analyzing..." immediately
+        analyzing_placeholder = st.empty()
+        analyzing_message_html = """
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">
+                    <span class="analyzing-text">Enviro is analyzing...</span>
+                </div>
+            </div>
+        """
+        analyzing_placeholder.markdown(analyzing_message_html, unsafe_allow_html=True)
         
         try:
             # Build messages for Grok API
@@ -1520,8 +1587,9 @@ def main():
             
             response_text = response_data["choices"][0]["message"]["content"]
             
-            # Use stream_response to show typing animation
-            full_response = stream_response(response_text)
+            # Clear the analyzing message and show typing animation
+            analyzing_placeholder.empty()
+            full_response = stream_response_direct(response_text)
             
             # Add timestamp if enabled
             timestamp = ""
@@ -1536,6 +1604,8 @@ def main():
             })
             
         except Exception as e:
+            # Clear analyzing message and show error
+            analyzing_placeholder.empty()
             error_message = f"⚠️ **Error:** {str(e)}<br><br>Please try again in a moment."
             timestamp = ""
             if st.session_state.show_timestamps:
