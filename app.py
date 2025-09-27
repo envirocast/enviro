@@ -1138,11 +1138,29 @@ footer {{
     background: {palette['bg_primary']} !important;
 }}
 
-/* Force footer to be hidden and black */
-footer {{
+/* Force footer to be completely black and hidden */
+footer, .stApp footer, [data-testid="stFooter"] {{
+    background: {palette['bg_primary']} !important;
+    background-color: {palette['bg_primary']} !important;
     visibility: hidden !important;
     height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: none !important;
+}}
+
+/* Force any remaining footer elements */
+.stApp > div:last-child:not([data-testid="stMain"]) {{
     background: {palette['bg_primary']} !important;
+    display: none !important;
+}}
+
+/* Target Streamlit's auto-generated footer elements */
+div[class*="footer"], div[id*="footer"] {{
+    background: {palette['bg_primary']} !important;
+    visibility: hidden !important;
+    height: 0 !important;
 }}
 
 /* Force main app container background */
