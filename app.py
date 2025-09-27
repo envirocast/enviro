@@ -1224,6 +1224,7 @@ footer {{
 }}
 
 /* Typing effect cursor */
+/* Typing effect cursor */
 .typing-cursor {{
     animation: blink 1s step-end infinite;
     font-weight: bold;
@@ -1232,8 +1233,8 @@ footer {{
 }}
 
 @keyframes blink {{
-    from, to {{ color: transparent; }}
-    50% {{ color: white; }}
+    from, to { color: transparent; }
+    50% { color: white; }
 }}
 
 /* Mobile Styles */
@@ -1340,13 +1341,13 @@ def stream_response(response_text):
         </div>
     """
     analyzing_placeholder.markdown(analyzing_message_html, unsafe_allow_html=True)
-    time.sleep(2) # Show message for a couple of seconds
+    time.sleep(1.5)  # Show analyzing message for 1.5 seconds
 
     # 2. Clear the analyzing message and prepare for streaming
     analyzing_placeholder.empty()
     message_placeholder = st.empty()
     
-    # 3. Stream the response (skip if animation is off)
+    # 3. Stream the response character by character
     if typing_speed == 0:
         # No animation - show full response immediately
         message_placeholder.markdown(f"""
@@ -1356,17 +1357,26 @@ def stream_response(response_text):
             </div>
         """, unsafe_allow_html=True)
     else:
-        # Animated typing
-        full_response = ""
-        for char in response_text:
-            full_response += char
+        # Animated typing - character by character
+        displayed_text = ""
+        
+        for i, char in enumerate(response_text):
+            displayed_text += char
+            
+            # Show cursor while typing
             message_placeholder.markdown(f"""
                 <div class="message assistant-message">
                     <div class="avatar assistant-avatar">🌐</div>
-                    <div class="message-content">{full_response} <span class="typing-cursor">|</span></div>
+                    <div class="message-content">{displayed_text}<span class="typing-cursor">|</span></div>
                 </div>
             """, unsafe_allow_html=True)
+            
+            # Add delay based on animation speed
             time.sleep(typing_speed)
+            
+            # Every 50 characters, add a small pause for more natural typing
+            if i > 0 and i % 50 == 0:
+                time.sleep(0.1)
 
         # 4. Final render without cursor
         message_placeholder.markdown(f"""
@@ -1504,7 +1514,10 @@ def main():
             response = call_grok_api(api_messages, stream=False)
             response_data = response.json()
             
-            full_response = response_data["choices"][0]["message"]["content"]
+            response_text = response_data["choices"][0]["message"]["content"]
+            
+            # Use stream_response to show typing animation
+            full_response = stream_response(response_text)
             
             # Add timestamp if enabled
             timestamp = ""
