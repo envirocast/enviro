@@ -1,5 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
+import json
 import time
 import os
 from textwrap import dedent
@@ -8,11 +9,10 @@ from textwrap import dedent
 # Config & API initialization
 # ----------------------------
 try:
-    api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    api_key = st.secrets.get("ENVIRO_API_KEY") or os.getenv("ENVIRO_API_KEY")
     if not api_key:
-        st.error("⚠️ GEMINI_API_KEY not found in secrets")
+        st.error("⚠️ ENVIRO_API_KEY not found in secrets")
         st.stop()
-    genai.configure(api_key=api_key)
 except Exception as e:
     st.error(f"⚠️ API configuration error: {str(e)}")
     st.stop()
