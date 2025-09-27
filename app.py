@@ -217,7 +217,7 @@ def call_grok_api(messages, stream=False):
 # Color Palettes
 # ------------------------
 COLOR_PALETTES = {
-    "Default": {
+    "Enviro Cyber": {
         "primary": "#00D4FF",
         "secondary": "#8B5CF6", 
         "accent": "#10B981",
@@ -369,7 +369,7 @@ def initialize_session_state():
     if "chat_density" not in st.session_state:
         st.session_state.chat_density = "Standard"
     if "animation_speed" not in st.session_state:
-        st.session_state.animation_speed = "Normal"
+        st.session_state.animation_speed = "Fast"
     if "show_timestamps" not in st.session_state:
         st.session_state.show_timestamps = False
     if "citation_style" not in st.session_state:
@@ -627,7 +627,7 @@ def render_sidebar():
             st.session_state.reading_level = "High School"
             st.session_state.color_palette = "Default"
             st.session_state.chat_density = "Standard"
-            st.session_state.animation_speed = "Normal"
+            st.session_state.animation_speed = "Fast"
             st.session_state.show_timestamps = False
             st.session_state.citation_style = "MLA"
             st.session_state.technical_level = "Intermediate"
@@ -721,7 +721,7 @@ def get_dynamic_styles():
     # Fix font import and create proper font stack
     font_name = st.session_state.font_family
 
-    # Handle "Normal" font (use Streamlit's default)
+    # Handle "Default" font (use Streamlit's default)
     if font_name == "Enviro Sans":
         font_stack = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
         font_import = ""
