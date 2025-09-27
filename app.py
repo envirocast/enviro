@@ -2,22 +2,24 @@ import streamlit as st
 import google.generativeai as genai
 import time
 import os
-import re
-import uuid
 from textwrap import dedent
 
 # ----------------------------
 # Config & API initialization
 # ----------------------------
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("Missing GEMINI_API_KEY environment variable")
-
-genai.configure(api_key=GEMINI_API_KEY)
+try:
+    api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        st.error("⚠️ GEMINI_API_KEY not found in secrets")
+        st.stop()
+    genai.configure(api_key=api_key)
+except Exception as e:
+    st.error(f"⚠️ API configuration error: {str(e)}")
+    st.stop()
 
 st.set_page_config(
     page_title="Meet Enviro",
-    page_icon="🌿",
+    page_icon="🌐",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -34,7 +36,7 @@ generation_config = {
 }
 
 SYSTEM_INSTRUCTION = """
-Name: Your name is Enviro. Your name stands for EnviroCast AI Dialogue Engine
+Your name is Enviro. You are the Large Language Model/AI Chatbot for EnviroCast.
 
 Behavioral Guidelines:
 Be informative, professional, and approachable.
@@ -49,25 +51,320 @@ INFORMATION ABOUT ENVIROCAST:
 EnviroCast (web: https://envirocast.github.io) is a platform designed to educate people on pollution, environmental effects, and air quality prediction.
 It uses advanced technologies, including a hybrid quantum-classical algorithm, to monitor and predict air quality.
 The site includes interactive simulations, models, and visualizations to help users understand environmental challenges and solutions.
-Social media campaign: Instagram @envirocast_tech.
+Social media campaign: Instagram -> @envirocast_tech (Social media campaign shows new features of EnviroCast, how EnviroCast works, how EnviroCast is helpful, and promotes action against pollution)
 
-Always provide citations at the end of every response using good and credible sources.
+Always provide citations at the end of every response using good and credible sources (Tier 1).
+Cite sources in selected style and provide URLS. Put a Citations header in response the line before citations
 
-Make sure to only talk about environmental, focus only on the topics mentioned in these instructions, do not involve in anything unrelated to the topic or anything illegal or negative.
+Make sure to only talk about the environment, focus only on the topics mentioned in these instructions, do not involve in anything unrelated to the topic or anything illegal or negative.
+Another topic you can talk about is quantum data. Different quantum mechanics and topics and concepts. You can relate how quantum computing and algorithms are used in EnviroCast's processes.
+Feel free to talk anything about EnviroCast.
 
-You are ONLY an informational chatbot.
+MORE SPECIFIC NOTES ON BEHAVIOR:
+Response Length: [VALUE] (Brief = 1-2 paragraphs, Standard = 2-4 paragraphs, Detailed = 4+ paragraphs with comprehensive explanations)
+Reading Level: [VALUE] (Elementary = simple words and short sentences, Middle = moderate vocabulary, High School = standard complexity, College = advanced vocabulary and complex concepts)
+Citation Style: [VALUE] (format all citations accordingly)
+Technical Detail Level: [VALUE] (Basic = minimal jargon and simple explanations, Intermediate = moderate technical terms with explanations, Advanced = full technical depth and terminology)
+Language: [VALUE] (respond in this language)
+
+
+--- Specific EnviroCast information is below ---
+
+HOMEPAGE (https://envirocast.github.io/):
+EnviroCast is powered by quantum computing. EnviroCast harnesses the power of quantum algorithms to model, predict, and combat environmental challenges with unprecedented precision and speed. (Statistics: 95.4% Accuracy, 2.3M Data Points, 47% CO2 Reduction)
+The Challenge/Crisis EnviroCast is fighting: acceleration of climate change, environmental degradation, overwhelming pollution, traditional models lack multidimensional analysis, real-time environmental monitoring gaps (Statistics: 1.5 degrees Celsius global warning, 8.3M tons of plastic per year)
+Quantum Advantage/Solution: quantum superposition enables parallel scenario modeling, AI integration for complex pattern recognition, real-time processing of massive environmental datasets, predictive accuracy exceeding traditional methods by 300% (Statistics: 95.4% Prediction Accuracy, 1000x Faster Processing)
+EnviroCast's Mission: To democratize environmental intelligence through quantum computing, enabling rapid response to climate challenges and empowering decision-makers with unprecedented insights into our planet's future.
+
+ABOUT (https://envirocast.github.io/about):
+Why Quantum Computing?: Exponential Scaling (Quantum systems can represent exponentially more states than classical computers, perfect for complex environmental modeling.), Parallel Processing (Quantum superposition allows simultaneous exploration of multiple solution paths, dramatically speeding up optimization.), Natural Correlation (Quantum entanglement naturally models the interconnected relationships in environmental systems.)
+Quantum Station -> Quantum State: |ψ⟩ = α|0⟩ + β|1⟩
+
+--- Quantum Algorithms ---
+Quantum Superposition Modeling (core algorithm):
+Leverages quantum superposition to simultaneously model multiple environmental scenarios, enabling parallel computation of thousands of potential outcomes.
+Technical Implementation: Quantum State Preparation (Initialize qubits in superposition states representing different environmental parameters simultaneously.), Entanglement Networks (Create quantum entanglements between related environmental factors for correlated modeling.), Measurement Protocols (Implement quantum measurement strategies that preserve coherence while extracting meaningful results.)
+Statistics: 10000x Parallel States, 95.4% Accuracy, 0.3ms Processing Time, 300% Speed Increase, 45% Accuracy Gain
+Real-World Applications (examples): Climate Pattern Recognition (Identify complex weather patterns across multiple time horizons simultaneously.), Pollution Dispersion Modeling (Model how pollutants spread through different atmospheric conditions in parallel.), Resource Allocation (Optimize environmental resource distribution across multiple scenarios.)
+
+Quantum Machine Learning Integration (used for AI enhancement):
+Combines quantum computing with classical machine learning to identify complex environmental patterns that traditional methods miss.
+Technical Implementation: Quantum Feature Maps (Map classical environmental data into high-dimensional quantum feature spaces for enhanced pattern recognition.), Variational Quantum Classifiers (Use parameterized quantum circuits to classify environmental conditions with quantum advantage.), Quantum Kernel Methods (Implement quantum kernels that can detect non-linear relationships in environmental data.)
+Statistics: 95% Pattern Detection, 2.3M Data Points/sec, 78% Noise Reduction, 67% Better Predictions, 89% False Positive Reduction
+Real-World Applications (examples): Species Migration Prediction (Predict wildlife migration patterns based on changing environmental conditions.), Ecosystem Health Assessment (Evaluate ecosystem stability using quantum-enhanced pattern recognition.), Pollution Source Identification (Trace pollution back to sources using quantum machine learning techniques.)
+
+Real-Time Quantum Processing (data processing):
+Processes massive environmental datasets in real-time using quantum algorithms optimized for continuous data streams.
+Technical Implementation: Quantum Data Streaming (Implement quantum algorithms that can process continuous data streams without interruption.), Adaptive Quantum Gates (Use dynamically adjusting quantum gates that adapt to changing data characteristics.), Quantum Error Correction (Real-time error correction to maintain data integrity in noisy quantum environments.)
+Statistics: 1.2TB/s Data Throughput, <100ms Network Latency, 99.9% Uptime, 1000x Faster Processing, 92% Resource Efficiency
+Real-World Applications (examples): Emergency Response Systems (Provide real-time environmental alerts for natural disasters and pollution events.), Smart City Integration (Process urban environmental data streams for immediate air quality and traffic optimization.), Agricultural Monitoring (Real-time crop and soil condition monitoring for precision agriculture.)
+
+Predictive Climate Modeling (forecasting):
+Uses quantum algorithms to model climate systems with unprecedented accuracy, predicting environmental changes months ahead.
+Technical Implementation: Quantum Fourier Transform (Use QFT to analyze cyclical patterns in climate data across multiple timescales.), Quantum Phase Estimation (Estimate phase relationships between different climate variables for better predictions.), Quantum Amplitude Amplification (Amplify the probability of accurate predictions while suppressing noise.)
+Statistics: 18 month Forecast Range, 95.4% Accuracy, 95% Pollutant Analysis Accuracy, 45% Longer Forecasts, 73% Better Accuracy
+Real-World Applications (examples): Hurricane Path Prediction (Predict hurricane trajectories with quantum-enhanced atmospheric modeling.), Drought Early Warning (Identify drought conditions months before they occur for agricultural planning.), Sea Level Rise Monitoring (Model ice sheet dynamics and thermal expansion with quantum precision.)
+
+Quantum Resource Optimization (optimization of technologies and modeling):
+Optimizes environmental resource allocation using quantum annealing and variational algorithms for maximum efficiency.
+Technical Implementation: Quantum Approximate Optimization (Use QAOA to solve complex environmental resource allocation problems.), Variational Quantum Eigensolver (Find optimal configurations for renewable energy distribution networks.), Quantum Annealing (Use quantum annealing for large-scale environmental optimization problems.)
+Statistics: 87% Efficiency Gain, 43% Waste Reduction, 94% Energy Consumption
+Real-World Applications (examples): Renewable Energy Grid (Optimize renewable energy distribution across smart grids for maximum efficiency.), Waste Management Routes (Find optimal waste collection and recycling routes to minimize environmental impact.), Water Resource Distribution (Optimize water distribution networks considering environmental and economic factors.)
+
+--- System Architecture ---
+Quantum Processing Layer: Quantum Processing Units (QPUs), Quantum Error Correction, Quantum State Management, Entanglement Controllers
+Classical Integration Layer: High-Performance Computing Clusters, Machine Learning Accelerators, Data Preprocessing Pipelines, Result Optimization Engines
+Application Interface Layer: Real-time API Endpoints, Visualization Engines, Alert and Notification Systems, Third-party Integrations
+
+Data Flow Architecture: Environmental Sensors > Data Ingestion > Quantum Processing > Classical Analysis > Insights & Alerts
+
+--- Performance ---
+Statistics: 1000x faster than classical models in processing speed (+340% this year), 95.4% environmental forecast prediction accuracy (+12% improvement), 1TB/s real-time processing/data throughput, 87% less power consumption (+23% efficiency gain)
+
+Quantum vs. Classical Performance:
+Climate Model Simulation -> Classical Models (72 hours) vs. EnviroCast's Quantum Models (0.7 seconds) = 350000x faster
+Pollution Spread Analysis -> Classical Models (45 minutes) vs. EnviroCast's Quantum Models (1.2 seconds) = 2250x faster
+Resource Optimization -> Classical Models (3.2 hours) vs. EnviroCast's Quantum Models (12 seconds) -> 960x faster
+Pattern Recognition -> Classical Models (15 minutes) vs. EnviroCast's Quantum Models (0.8 seconds) -> 1125x faster
+
+Environmental Impact: 87% Carbon Footprint Reduction (Lower energy consumption compared to classical supercomputers), 99.2% Computational Efficiency (Resource utilization efficiency in quantum processing), 95.4% Prediction Reliability (Accuracy in 30-day environmental forecasts)
+
+MODELS (https://envirocast.github.io/models):
+Quantum Particle Physics Simulation:
+Interactive quantum mechanics demonstration showing superposition, entanglement, and tunneling (Click on particles to view their quantum properties • Watch for entanglement when particles collide)
+Allows to visualize quantum superposition, quantum entanglement, quantum tunneling, Heisenberg uncertainty, wave-particle duality, observer effect
+Shows real-time quantum statistics
+Analyze particles (position, velocity, energy level, quantum state, entanglement status, tunneling status, uncertainty and error)
+
+Global Environment Simulation:
+Interactive modeling of environmental systems, climate change, and human impact
+User can set timeline and events based on Current Trajectory, Green Revolution, Climate Crisis, Global Intervention
+Global Environmental Status across 6 regions (North America, Amazon Basin, Sahara Region, Arctic Circle, Southeast Asia, and Europe) - Each region has statistics for temperature, air quality, health risk, species, precipitation and population density
+Users can manipulate variables considered (Temperature, Pollution, Biodiversity, Population, Climate)
+Users can manipulate human variables (Impact of Industrialization, Renewable Energy Prevalence, Impact of Deforestation, Impact of Urbanization, Carbon Emissions, Conservation Efforts)
+Users can visualize density, temperature, and pressure on the 4 atmospheric layers (Troposphere, Stratosphere, Mesosphere, Thermosphere)
+Based on variables manipulated by users, environmental impact varies in range [Sustainable, Manageable, Critical, Catastrophic] - other variables shown (global temperature, CO2 level, forest cover, sea level, climate change, biodiversity loss, pollution level, health impact, migration, ocean health, food security, temperature trends, biodiversity trends, ice coverage)
+Scenario Outcomes & Projections vary based on user variables - Short-Term (temperature, air quality, coastal effects) & Long-Term (ecosystem adaptability, food system, technological solutions)
+Provides effective mitigation strategies for the environment based on environmental impact
+Provides model performance statistics (data processing, coverage area, model accuracy, update frequency)
+Bases data on EnviroNex API, NASA TEMPO Satellite Data, and NOAA Climate Data (all APIs are accessible)
+
+Quantum Processing Hub:
+Shows active quantum bits, classical processors, quantum coherence, and data points processed
+Compares Superposition Engine, Entanglement Network and Quantum Optimization
+Uses 6 Live Data Streams (TEMPO Satellite, Ground Sensors, Weather Stations, Traffic Systems, Industrial IoT, Ocean Buoys)
+Hybrid Processing Architecture = Environmental Data Input (2847K samples/sec) > Quantum Processing (64 qubits active) > Classical ML-Fusion (128 nodes active)
+Real-Time Environmental Intelligence -> Instant Processing (Environmental changes detected and processed in milliseconds), Parallel Scenarios (Quantum superposition models thousands of pollution scenarios simultaneously), Predictive Accuracy (95.4% accuracy in short-term forecasts, 87% for long-term predictions)
+Key Performance Metrics: Processing Speed (1000x faster), Model Accuracy (95.4%), Data Throughput (1 TB/hour), Response Time (<1s), System Temperature: approaches absolute zero (~273°C)
+EnviroCast Integration Pipeline (TEMPO Data Ingestion > Quantum Feature Mapping > Parallel State Processing > Classical ML Enhancement > Real-Time Predictions > API Distribution)
+Live Quantum Circuit Visualization -> Quantum Gates in Action (Hadamard (H) - superposition states for parallel environmental scenario modeling, Rotation (R) - environmental parameters like temperature and pollution levels, CNOT (⊕) - entanglement between qubits to model environmental correlations)
+Real-Time Performance Analytics -> Monitor live processing efficiency as our quantum algorithms analyze environmental data streams -> Measures system health using multiple parameters (Quantum Processors, Classical Nodes, Memory Systems, Network I/O, Error Correction)
+
+TEMPO vs. Tradtional Forecasting:
+Spatial Coverage -> Traditional Methods (Limited) vs. TEMPO AirCast (Global)
+Update Frequency -> Traditional Methods (Daily) vs. TEMPO AirCast (Hourly)
+Forecast Accuracy -> Traditional Methods (~75%) vs. TEMPO AirCast (95.4%)
+Processing Speed -> Traditional Methods (Hours) vs. TEMPO AirCast (Minutes)
+Resolution -> Traditional Methods (~50km) vs. TEMPO AirCast (~2.1km)
+
+AI CHATBOT (https://envirocast.github.io/ai):
+Enviro chatbot (this chatbot) -> Powerful LLM Interface, Real-Time Information, Precision Data, Live Responses
+
+ENVIRONEX (https://envirocast.github.io/nex):
+EnviroNex -> full quantum-enhanced environmental intelligence platform with interactive 3D globe, real-time predictions, and comprehensive health analysis
+Platform Capabilities: Interactive 3D Globe (Navigate through our quantum-enhanced Earth visualization with real-time atmospheric data overlays), 24-Hour Pollution Forecasts (Real-time predictions for air quality across regions using quantum algorithms), 7-Year Climate Projections (Long-term environmental pattern analysis and weather predictions), Health Impact Analysis (Quantum-driven analysis of pollutants with detailed health risk breakdowns), Natural Disaster Tracking (Visualize pollution and atmospheric statistics during hurricanes, wildfires, and floods), AI Navigation Assistant (Integrated chatbot to help navigate models, interpret results, and explore features)
+Quantum-Enhanced Intelligence: Real-Time Processing (Quantum algorithms process massive environmental datasets in real-time for instant insights), Predictive Modeling (Advanced forecasting from 24-hour pollution predictions to 7-year climate projections), Health Integration (Quantum-driven analysis linking environmental conditions to population health outcomes), Disaster Response (Emergency monitoring during natural disasters with real-time impact assessment)
+Quantum Processing Core -> Advanced algorithms running 24/7
+
+API Access & Documentation -> API (https://quantum-sky-probe.vercel.app/), Documentation (https://quantum-sky-probe.vercel.app/api-docs)
+
+Core API Endpoints:
+'GET /forecast' -> Pollution Forecasting: Predicts pollution levels and pollutant patterns using quantum-enhanced algorithms. Provides detailed forecasts for air quality, particulate matter, and chemical dispersions across specified geographic regions and time periods. (Real-time predictions, multi-pollutant analysis, geographic mapping)
+'POST /health-risk' -> Health Risk Assessment: Analyzes health risks based on environmental conditions in specific areas. Correlates pollution data with population health metrics to predict potential health impacts and provide risk assessments for vulnerable populations. (Population risk analysis, vulnerable group alerts, health impact scoring)
+'GET /status' -> API Status & Details: Provides comprehensive information about API functionality, including system health, available endpoints, rate limits, and quantum processing capabilities. Essential for monitoring and integration planning. (System health monitoring, rate limit information, quantum processing status)
+
+Open Access Environmental Data: Free Access (Open-access environmental data for researchers, educators, and non-profit organizations), API Keys (Simple registration process for API access with rate limits based on usage tier), Community (Join our developer community for support, examples, and collaborative research)
+EnviroCast is committed to Open Science & Environmental Research.
+
+You are ONLY an informational chatbot. 
+
+**When Deep Research is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
 """.strip()
 
+# ------------------------
+# Color Palettes
+# ------------------------
+COLOR_PALETTES = {
+    "Default": {
+        "primary": "#00D4FF",
+        "secondary": "#8B5CF6", 
+        "accent": "#10B981",
+        "bg_primary": "#000000",
+        "bg_secondary": "#03060c",
+        "gradient": "linear-gradient(135deg, #00D4FF 0%, #8B5CF6 50%, #10B981 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #ffffff, #e0e0e0)",
+        "avatar_assistant": "linear-gradient(135deg, #4CAF50, #2196F3)"
+    },
+    "Equity": {
+        "primary": "#D2691E",
+        "secondary": "#CD853F",
+        "accent": "#A0522D",
+        "bg_primary": "#1a0f0a",
+        "bg_secondary": "#2d1b13",
+        "gradient": "linear-gradient(135deg, #D2691E 0%, #CD853F 50%, #A0522D 100%)",
+        "message_user": "linear-gradient(135deg, rgba(210, 105, 30, 0.15), rgba(205, 133, 63, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(160, 82, 45, 0.15), rgba(139, 69, 19, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #DEB887, #CD853F)",
+        "avatar_assistant": "linear-gradient(135deg, #D2691E, #A0522D)"
+    },
+    "Flow": {
+        "primary": "#00CED1",
+        "secondary": "#20B2AA",
+        "accent": "#48D1CC",
+        "bg_primary": "#0a1a1a",
+        "bg_secondary": "#0f2d2d",
+        "gradient": "linear-gradient(135deg, #00CED1 0%, #20B2AA 50%, #48D1CC 100%)",
+        "message_user": "linear-gradient(135deg, rgba(0, 206, 209, 0.15), rgba(32, 178, 170, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(72, 209, 204, 0.15), rgba(95, 158, 160, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #AFEEEE, #B0E0E6)",
+        "avatar_assistant": "linear-gradient(135deg, #00CED1, #20B2AA)"
+    },
+    "Origin": {
+        "primary": "#FFA500",
+        "secondary": "#FFD700",
+        "accent": "#87CEEB",
+        "bg_primary": "#1a1612",
+        "bg_secondary": "#2d2520",
+        "gradient": "linear-gradient(135deg, #FFA500 0%, #FFD700 30%, #32CD32 60%, #87CEEB 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(255, 215, 0, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(50, 205, 50, 0.15), rgba(135, 206, 235, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #FFEAA7, #FDCB6E)",
+        "avatar_assistant": "linear-gradient(135deg, #FFA500, #32CD32)"
+    },
+    "Opulent": {
+        "primary": "#FF6347",
+        "secondary": "#FFD700",
+        "accent": "#DA70D6",
+        "bg_primary": "#1a0a0a",
+        "bg_secondary": "#2d1515",
+        "gradient": "linear-gradient(135deg, #FF6347 0%, #FFD700 25%, #DA70D6 75%, #FF1493 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 99, 71, 0.15), rgba(255, 215, 0, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(218, 112, 214, 0.15), rgba(255, 20, 147, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #FFB6C1, #FFA07A)",
+        "avatar_assistant": "linear-gradient(135deg, #FF6347, #DA70D6)"
+    },
+    "Verve": {
+        "primary": "#1E90FF",
+        "secondary": "#8A2BE2",
+        "accent": "#FF1493",
+        "bg_primary": "#0a0a1a",
+        "bg_secondary": "#15152d",
+        "gradient": "linear-gradient(135deg, #1E90FF 0%, #8A2BE2 50%, #FF1493 100%)",
+        "message_user": "linear-gradient(135deg, rgba(30, 144, 255, 0.15), rgba(138, 43, 226, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(255, 20, 147, 0.15), rgba(138, 43, 226, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #87CEEB, #DDA0DD)",
+        "avatar_assistant": "linear-gradient(135deg, #1E90FF, #8A2BE2)"
+    },
+    "Ember": {
+        "primary": "#DC143C",
+        "secondary": "#FF4500",
+        "accent": "#FFD700",
+        "bg_primary": "#1a0505",
+        "bg_secondary": "#2d0a0a",
+        "gradient": "linear-gradient(135deg, #DC143C 0%, #FF4500 50%, #FFD700 100%)",
+        "message_user": "linear-gradient(135deg, rgba(220, 20, 60, 0.15), rgba(255, 69, 0, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 140, 0, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #F08080, #FA8072)",
+        "avatar_assistant": "linear-gradient(135deg, #DC143C, #FF4500)"
+    },
+    "Arctic": {
+        "primary": "#B0E0E6",
+        "secondary": "#87CEEB",
+        "accent": "#E0FFFF",
+        "bg_primary": "#0f1419",
+        "bg_secondary": "#1a2530",
+        "gradient": "linear-gradient(135deg, #B0E0E6 0%, #87CEEB 50%, #E0FFFF 100%)",
+        "message_user": "linear-gradient(135deg, rgba(176, 224, 230, 0.15), rgba(135, 206, 235, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(224, 255, 255, 0.15), rgba(175, 238, 238, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #F0F8FF, #E6F3FF)",
+        "avatar_assistant": "linear-gradient(135deg, #B0E0E6, #87CEEB)"
+    },
+    "Forest": {
+        "primary": "#228B22",
+        "secondary": "#32CD32",
+        "accent": "#8FBC8F",
+        "bg_primary": "#0a1a0a",
+        "bg_secondary": "#152d15",
+        "gradient": "linear-gradient(135deg, #228B22 0%, #32CD32 50%, #8FBC8F 100%)",
+        "message_user": "linear-gradient(135deg, rgba(34, 139, 34, 0.15), rgba(50, 205, 50, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(143, 188, 143, 0.15), rgba(46, 125, 50, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #90EE90, #98FB98)",
+        "avatar_assistant": "linear-gradient(135deg, #228B22, #32CD32)"
+    },
+    "Grayscale": {
+        "primary": "#FFFFFF",
+        "secondary": "#C0C0C0",
+        "accent": "#808080",
+        "bg_primary": "#000000",
+        "bg_secondary": "#1a1a1a",
+        "gradient": "linear-gradient(135deg, #FFFFFF 0%, #C0C0C0 50%, #808080 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(192, 192, 192, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(128, 128, 128, 0.15), rgba(105, 105, 105, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #F5F5F5, #E5E5E5)",
+        "avatar_assistant": "linear-gradient(135deg, #DCDCDC, #C0C0C0)"
+    },
+    "High Contrast": {
+        "primary": "#FFFF00",
+        "secondary": "#0000FF",
+        "accent": "#FFFFFF",
+        "bg_primary": "#000000",
+        "bg_secondary": "#1a1a1a",
+        "gradient": "linear-gradient(135deg, #FFFF00 0%, #0000FF 50%, #FFFFFF 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 255, 0, 0.2), rgba(0, 0, 255, 0.1))",
+        "message_assistant": "linear-gradient(135deg, rgba(0, 0, 255, 0.2), rgba(255, 255, 255, 0.1))",
+        "avatar_user": "linear-gradient(135deg, #FFFF99, #FFFFCC)",
+        "avatar_assistant": "linear-gradient(135deg, #FFFF00, #0000FF)"
+    }
+}
 
 # ------------------------
 # Session state bootstrap
 # ------------------------
 def initialize_session_state():
+    # User preferences
+    if "font_family" not in st.session_state:
+        st.session_state.font_family = "Enviro Sans"
+    if "font_size" not in st.session_state:
+        st.session_state.font_size = 16
+    if "response_length" not in st.session_state:
+        st.session_state.response_length = "Standard"
+    if "reading_level" not in st.session_state:
+        st.session_state.reading_level = "High School"
+    if "color_palette" not in st.session_state:
+        st.session_state.color_palette = "Default"
+    if "chat_density" not in st.session_state:
+        st.session_state.chat_density = "Standard"
+    if "animation_speed" not in st.session_state:
+        st.session_state.animation_speed = "Normal"
+    if "show_timestamps" not in st.session_state:
+        st.session_state.show_timestamps = False
+    if "citation_style" not in st.session_state:
+        st.session_state.citation_style = "MLA"
+    if "technical_level" not in st.session_state:
+        st.session_state.technical_level = "Intermediate"
+    if "language" not in st.session_state:
+        st.session_state.language = "English"
+
+    # Build dynamic system instruction based on preferences
+    dynamic_instruction = build_dynamic_system_instruction()
+    
     if "chat_model" not in st.session_state:
         st.session_state.chat_model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config=generation_config,
-            system_instruction=SYSTEM_INSTRUCTION,
+            system_instruction=dynamic_instruction,
         )
 
     if "chat_session" not in st.session_state:
@@ -76,568 +373,1133 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
+def build_dynamic_system_instruction():
+    """Build system instruction incorporating user preferences"""
+    base_instruction = SYSTEM_INSTRUCTION
+    
+    # Add preference-based modifications
+    preference_additions = f"""
 
-# -------------------------------------------
-# Minimal, safer markdown -> HTML converter
-# (keeps your look, avoids script bleeding)
-# -------------------------------------------
-def advanced_markdown(text: str) -> str:
-    # Normalize excessive newlines
-    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
+USER PREFERENCES TO FOLLOW:
+- Response Length: {st.session_state.response_length} (Brief = 1-2 paragraphs, Standard = 2-4 paragraphs, Detailed = 4+ paragraphs with comprehensive explanations)
+- Reading Level: {st.session_state.reading_level} (Elementary = simple words and short sentences, Middle = moderate vocabulary, High School = standard complexity, College = advanced vocabulary and complex concepts)
+- Citation Style: {st.session_state.citation_style} (format all citations accordingly)
+- Technical Detail Level: {st.session_state.technical_level} (Basic = minimal jargon and simple explanations, Intermediate = moderate technical terms with explanations, Advanced = full technical depth and terminology)
+- Language: {st.session_state.language} (respond in this language)
 
-    # Headers
-    text = re.sub(r"^### (.*)$", r"<h3>\1</h3>", text, flags=re.MULTILINE)
-    text = re.sub(r"^## (.*)$", r"<h2>\1</h2>", text, flags=re.MULTILINE)
-    text = re.sub(r"^# (.*)$", r"<h1>\1</h1>", text, flags=re.MULTILINE)
+Adjust your responses to match these preferences while maintaining accuracy and helpfulness.
+"""
+    
+    return base_instruction + preference_additions
 
-    # Bold / Italic
-    text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
-    text = re.sub(r"(?<!\*)\*(?!\*)(.*?)\*(?<!\*)", r"<em>\1</em>", text)
+def update_chat_model():
+    """Update the chat model with new system instruction when preferences change"""
+    dynamic_instruction = build_dynamic_system_instruction()
+    st.session_state.chat_model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",
+        generation_config=generation_config,
+        system_instruction=dynamic_instruction,
+    )
+    # Start a new chat session with updated model
+    st.session_state.chat_session = st.session_state.chat_model.start_chat(history=[])
 
-    # Inline code (escape < & > inside)
-    def code_repl(m):
-        code = m.group(1).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        return f"<code>{code}</code>"
-    text = re.sub(r"`([^`]+)`", code_repl, text)
+def searchwebquery(query):
+    url = "https://duckduckgo-api.up.railway.app/search"
+    params = {"q": query, "maxresults": 5}
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        return [f"{item['title']} - {item['link']}" for item in data.get("results", [])]
+    except Exception as e:
+        return [f"Web search failed: {e}"]
 
-    # Fenced code blocks
-    def pre_repl(m):
-        code = m.group(1).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        return f"<pre>{code}</pre>"
-    text = re.sub(r"```(.*?)```", pre_repl, text, flags=re.DOTALL)
+# ------------------------
+# Sidebar Settings
+# ------------------------
+def render_sidebar():
+    # Force sidebar to show with expander
+    st.sidebar.markdown("# Settings")
+    
+    with st.sidebar:
+        # Core Preferences
 
-    # Links
-    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2" target="_blank" rel="noopener noreferrer">\1</a>', text)
+        # --- Deep Research Section ---
+        st.markdown("## Deep Research")
+    
+        # Toggle for enabling web search
+        deep_research = st.checkbox(
+            "Enable Deep Research (Web Search)", 
+            st.session_state.get("deep_research", False)
+        )
+        st.session_state.deep_research = deep_research
 
-    # Lists (ul/ol)
-    lines = text.split("\n")
-    out = []
-    in_ul = False
-    in_ol = False
-    for ln in lines:
-        m_ul = re.match(r"^\s*[-\*\u2022]\s+(.*)$", ln)
-        m_ol = re.match(r"^\s*(\d+)\.\s+(.*)$", ln)
-        if m_ul:
-            if in_ol:
-                out.append("</ol>")
-                in_ol = False
-            if not in_ul:
-                out.append("<ul>")
-                in_ul = True
-            out.append(f"<li>{m_ul.group(1)}</li>")
-        elif m_ol:
-            if in_ul:
-                out.append("</ul>")
-                in_ul = False
-            if not in_ol:
-                out.append("<ol>")
-                in_ol = True
-            out.append(f"<li>{m_ol.group(2)}</li>")
+        st.markdown("### Typography")
+        
+        font_options = [
+            "Enviro Sans", "Arial", "Georgia", "Times New Roman", "Courier New", "Verdana", "Tahoma", "Trebuchet MS",
+            "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Source Sans Pro", "Noto Sans", "Inter", "Raleway",
+            "Nunito", "Oswald", "PT Sans", "Roboto Condensed", "Playfair Display", "Fira Sans", "Rubik",
+            "Muli", "Mulish", "Manrope", "Chivo", "Asap", "Barlow", "Lexend", "Prompt", "Varela Round",
+            "Spartan", "Urbanist", "Sora", "Jost", "Crimson Text", "Arvo", "Cardo", "Bitter", "IBM Plex Serif",
+            "Noto Serif", "Nanum Myeongjo", "Bebas Neue", "Dancing Script", "Lobster", "Shadows Into Light",
+            "Amatic SC", "Fredoka", "Cinzel", "Abril Fatface", "Cookie", "Kanit", "Josefin Sans", "Baloo 2", "Exo 2",
+            "Anton", "Cairo", "Teko", "Yanone Kaffeesatz", "Alfa Slab One", "Satisfy", "Righteous",
+            "Courgette", "Fugaz One", "Heebo", "Exo", "Cabin", "M PLUS Rounded 1c", "Yantramanav", "Noto Sans JP",
+            "Noto Sans KR", "Noto Sans Arabic", "Noto Serif Display", "Tajawal", "Assistant", "Scheherazade New", "Amiri", "Harmattan",
+            "Tinos", "Arimo", "Cousine", "Baloo Bhaijaan 2", "Mukta Vaani", "K2D", "Bai Jamjuree", "Press Start 2P",
+            "VT323", "Orbitron", "Audiowide", "Syncopate", "Unica One", "Monoton", "Philosopher", "Maven Pro",
+            "Karla", "Red Hat Display", "Red Hat Text", "Space Mono", "Tourney", "Prata", "Magra", "Fjalla One",
+            "Rasa", "Saira", "Saira Condensed", "Saira Semi Condensed", "Didact Gothic", "Julius Sans One", "Poiret One", "Tenor Sans",
+            "Bellefair", "DM Sans", "DM Serif Display", "DM Serif Text", "Gothic A1", "Be Vietnam Pro", "Catamaran", "Encode Sans",
+            "Encode Sans Semi Condensed", "Crete Round", "Chakra Petch", "Noticia Text", "Archivo", "Archivo Narrow", "Bangers", "Bowlby One", "Bowlby One SC",
+            "Cambo", "Carter One", "Changa", "Changa One", "Chelsea Market", "Comfortaa", "Concert One", "Contrail One", "Corben",
+            "Creepster", "Cuprum", "Days One", "Delius", "Delius Swash Caps", "Delius Unicase", "Denk One", "Domine",
+            "Donegal One", "Doppio One", "Dosa", "Dosis", "Dr Sugiyama", "EB Garamond", "Eater", "Economica", "Eczar", "Electrolize",
+            "Elsie", "Elsie Swash Caps", "Engagement", "Englebert", "Enriqueta", "Erica One", "Esteban", "Euphoria Script", "Expletus Sans",
+            "Fanwood Text", "Fascinate", "Fascinate Inline", "Faster One", "Fasthand", "Fauna One", "Federant", "Federo", "Felipa",
+            "Fenix", "Finger Paint", "Fira Mono", "Fjord One", "Flamenco", "Flavors", "Fondamento",
+            "Fontdiner Swanky", "Forum", "Francois One", "Freckle Face", "Fredericka the Great", "Fredoka One", "Freehand", "Fresca",
+            "Frijole", "Fruktur", "GFS Didot", "GFS Neohellenic", "Gabriela", "Gafata", "Galdeano", "Galindo",
+            "Gentium Basic", "Gentium Book Basic", "Geo", "Geostar", "Geostar Fill", "Germania One", "Gidugu", "Gilda Display",
+            "Give You Glory", "Glass Antiqua", "Glegoo", "Gloria Hallelujah", "Goblin One", "Gochi Hand", "Gorditas", "Goudy Bookletter 1911",
+            "Graduate", "Grand Hotel", "Gravitas One", "Great Vibes", "Griffy", "Gruppo", "Gudea", "Gurajada", "Habibi", "Halant",
+            "Hammersmith One", "Hanalei", "Hanalei Fill", "Handlee", "Hanuman", "Happy Monkey", "Headland One", "Henny Penny",
+            "Herr Von Muellerhoff", "Hind", "Holtwood One SC", "Homemade Apple", "Homenaje", "IM Fell DW Pica", "IM Fell DW Pica SC",
+            "IM Fell Double Pica", "IM Fell Double Pica SC", "IM Fell English", "IM Fell English SC", "IM Fell French Canon",
+            "IM Fell French Canon SC", "IM Fell Great Primer", "IM Fell Great Primer SC", "Iceberg", "Iceland", "Imprima", "Inconsolata",
+            "Inder", "Indie Flower", "Inika", "Irish Grover", "Istok Web", "Italiana", "Italianno", "Jacques Francois", "Jacques Francois Shadow",
+            "Jaldi", "Jim Nightshade", "Jockey One", "Jolly Lodger", "Josefin Slab", "Joti One", "Judson", "Julee",
+            "Junge", "Jura", "Just Another Hand", "Just Me Again Down Here", "Kalam", "Kameron", "Kantumruy",
+            "Karma", "Kaushan Script", "Kavoon", "Kdam Thmor", "Keania One", "Kelly Slab", "Kenia", "Khand", "Khmer", "Khula",
+            "Kite One", "Knewave", "Kotta One", "Koulen", "Kranky", "Kreon", "Kristi", "Krona One", "La Belle Aurore", "Laila",
+            "Lakki Reddy", "Lancelot", "Lateef", "League Script", "Leckerli One", "Ledger", "Lekton", "Lemon", "Libre Baskerville",
+            "Life Savers", "Lilita One", "Lily Script One", "Limelight", "Linden Hill", "Lobster Two", "Londrina Outline",
+            "Londrina Shadow", "Londrina Sketch", "Londrina Solid", "Lora", "Love Ya Like A Sister", "Loved by the King", "Lovers Quarrel",
+            "Luckiest Guy", "Lusitana", "Lustria", "Macondo", "Macondo Swash Caps", "Maiden Orange", "Mako", "Mallanna", "Mandali",
+            "Marcellus", "Marcellus SC", "Marck Script", "Margarine", "Marko One", "Marmelad", "Martel", "Martel Sans", "Marvel", "Mate",
+            "Mate SC", "McLaren", "Meddon", "MedievalSharp", "Medula One", "Megrim", "Meie Script", "Merienda", "Merienda One",
+            "Merriweather", "Merriweather Sans", "Metal", "Metal Mania", "Metamorphous", "Metrophobic", "Michroma", "Milonga", "Miltonian",
+            "Miltonian Tattoo", "Miniver", "Miss Fajardose", "Modak", "Modern Antiqua", "Molengo", "Molle", "Monda", "Monofett",
+            "Monsieur La Doulaise", "Montaga", "Montez", "Montserrat Alternates", "Montserrat Subrayada", "Moul", "Moulpali",
+            "Mountains of Christmas", "Mouse Memoirs", "Mr Bedfort", "Mr Dafoe", "Mr De Haviland", "Mrs Saint Delafield", "Mrs Sheppards",
+            "Mystery Quest", "NTR", "Neucha", "Neuton", "New Rocker", "News Cycle", "Niconne", "Nixie One", "Nobile", "Nokora",
+            "Norican", "Nosifer", "Nothing You Could Do", "Nova Cut", "Nova Flat", "Nova Mono",
+            "Nova Oval", "Nova Round", "Nova Script", "Nova Slim", "Nova Square", "Numans", "Odibee Sans", "Offside", "Old Standard TT", "Oldenburg", "Oleo Script", "Oleo Script Swash Caps", "Open Sans Condensed",
+            "Oranienbaum", "Oregano", "Orelega One", "Orienta", "Original Surfer", "Over the Rainbow", "Overlock",
+            "Overlock SC", "Overpass", "Overpass Mono", "Ovo", "Oxygen", "Oxygen Mono", "PT Mono", "PT Sans Caption",
+            "PT Sans Narrow", "PT Serif", "PT Serif Caption", "Pacifico", "Padauk", "Palanquin", "Palanquin Dark", "Pangolin", "Paprika",
+            "Parisienne", "Passero One", "Passion One", "Pathway Gothic One", "Patrick Hand", "Patrick Hand SC", "Pattaya", "Paytone One",
+            "Peddana", "Peralta", "Permanent Marker", "Petit Formal Script", "Petrona", "Piedra", "Pinyon Script",
+            "Pirata One", "Plaster", "Play", "Playball", "Playfair Display SC", "Podkova", "Poller One",
+            "Poly", "Pompiere", "Pontano Sans", "Port Lligat Sans", "Port Lligat Slab", "Pragati Narrow",
+            "Pridi", "Princess Sofia", "Prociono", "Prosto One", "Proza Libre", "Puritan", "Purple Purse", "Quando", "Quantico",
+            "Quattrocento", "Quattrocento Sans", "Questrial", "Quicksand", "Quintessential", "Qwigley", "Racing Sans One", "Radley",
+            "Rajdhani", "Rakkas", "Raleway Dots", "Ramabhadra", "Ramaraja", "Rambla", "Rammetto One", "Ranchers", "Rancho",
+            "Rationale", "Red Hat Mono", "Redressed", "Reem Kufi", "Reenie Beanie", "Revalia", "Rhodium Libre",
+            "Ribeye", "Ribeye Marrow", "Risque", "Roboto Mono", "Rochester", "Rock Salt",
+            "Rokkitt", "Romanesco", "Ropa Sans", "Rosario", "Rosarivo", "Rouge Script", "Rozha One", "Rubik Mono One", "Rubik One",
+            "Ruda", "Rufina", "Ruge Boogie", "Ruluko", "Rum Raisin", "Ruslan Display", "Russo One", "Ruthie", "Rye", "Sacramento", "Sahitya", "Sail", "Saira Extra Condensed",
+            "Salsa", "Sanchez", "Sancreek", "Sansita", "Sansita Swashed", "Sarina", "Sarpanch", "Sawarabi Gothic",
+            "Sawarabi Mincho", "Scada", "Scheherazade", "Schoolbell", "Scope One", "Seaweed Script", "Secular One",
+            "Sedgwick Ave", "Sedgwick Ave Display", "Sen", "Sevillana", "Seymour One", "Shadows Into Light Two",
+            "Shanti", "Share", "Share Tech", "Share Tech Mono", "Shojumaru", "Short Stack", "Shrikhand", "Siemreap", "Sigmar One",
+            "Signika", "Signika Negative", "Simonetta", "Single Day", "Sintony", "Sirin Stencil", "Six Caps", "Skranji", "Slabo 13px",
+            "Slabo 27px", "Slackey", "Smokum", "Smythe", "Sniglet", "Snippet", "Snowburst One", "Sofadi One", "Sofia", "Sonsie One",
+            "Sorts Mill Goudy", "Source Code Pro", "Source Serif Pro", "Special Elite",
+            "Spectral", "Spectral SC", "Spicy Rice", "Spinnaker", "Spirax", "Squada One", "Sriracha", "Srisakdi", "Staatliches",
+            "Stalemate", "Stalinist One", "Stardos Stencil", "Stint Ultra Condensed", "Stint Ultra Expanded", "Stoke", "Strait", "Sue Ellen Francisco",
+            "Sumana", "Sunflower", "Sunflower Mono", "Supermercado One", "Sura", "Suranna", "Suravaram", "Suwannaphum", "Swanky and Moo Moo",
+            "Syne", "Syne Mono", "Syne Tactile", "Tangerine", "Tauri", "Taviraj", "Telex", "Tenali Ramakrishna",
+            "Text Me One", "The Girl Next Door", "Tienne", "Titan One", "Titillium Web", "Tomorrow", "Trade Winds", "Trirong",
+            "Trocchi", "Trochut", "Trykker", "Tulpen One", "Ubuntu", "Ubuntu Condensed", "Ubuntu Mono", "Ultra", "Uncial Antiqua", "Underdog", "UnifrakturCook", "UnifrakturMaguntia", "Unkempt", "Unlock", "Unna", "Vampiro One", "Varela", "Vast Shadow", "Vesper Libre", "Viaoda Libre", "Vibur", "Vidaloka", "Viga", "Voces", "Volkhov", "Vollkorn", "Vollkorn SC",
+            "Voltaire", "Vujahday Script", "Waiting for the Sunrise", "Wallpoet", "Walter Turncoat", "Warnes", "Wellfleet", "Wendy One",
+            "Wire One", "Work Sans", "Xanh Mono", "Yatra One", "Yellowtail", "Yeon Sung", "Yeseva One", "Yesteryear",
+            "Yrsa", "Zilla Slab", "Zilla Slab Highlight"
+        ];
+        
+        selected_font = st.session_state.get("font_family", "Enviro Sans")
+        if font_options and selected_font not in font_options:
+            selected_font = font_options[0] if font_options else "Enviro Sans"
+        
+        if font_options:
+            newfont = st.selectbox("Font Family", font_options, index=font_options.index(selected_font))
         else:
-            if in_ul:
-                out.append("</ul>")
-            in_ul = False
-            if in_ol:
-                out.append("</ol>")
-            in_ol = False
-            out.append(ln)
-    if in_ul:
-        out.append("</ul>")
-    if in_ol:
-        out.append("</ol>")
-    text = "\n".join(out)
-
-    # Paragraph wrapping (skip blocks & headers)
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
-    formatted = []
-    for p in paragraphs:
-        if p.startswith(("<h1", "<h2", "<h3", "<ul", "<ol", "<pre", "<li")):
-            formatted.append(p)
-        else:
-            formatted.append(f"<p>{p.replace(chr(10), '<br>')}</p>")
-    return "\n".join(formatted)
-
+            newfont = st.text_input("Font Family", value=selected_font)
+        
+        new_font_size = st.slider("Font Size", 12, 20, st.session_state.font_size, 1)
+        
+        st.markdown("### Response Settings")
+        
+        length_options = ["Brief", "Standard", "Detailed"]
+        new_response_length = st.selectbox("Response Length", length_options,
+                                         index=length_options.index(st.session_state.response_length))
+        
+        level_options = ["Elementary", "Middle School", "High School", "College"]
+        new_reading_level = st.selectbox("Reading Level", level_options,
+                                       index=level_options.index(st.session_state.reading_level))
+        
+        # Color Palettes
+        st.markdown("### Color Theme")
+        
+        palette_options = list(COLOR_PALETTES.keys()) if COLOR_PALETTES else ["Default"]
+        if st.session_state.color_palette not in palette_options:
+            st.session_state.color_palette = palette_options[0]
+        
+        new_color_palette = st.selectbox("Color Palette", palette_options,
+                                       index=palette_options.index(st.session_state.color_palette))
+        
+        # Display Settings
+        st.markdown("### Display Settings")
+        
+        density_options = ["Compact", "Standard", "Spacious"]
+        new_chat_density = st.selectbox("Chat Density", density_options,
+                                      index=density_options.index(st.session_state.chat_density))
+        
+        speed_options = ["Off", "Slow", "Normal", "Fast"]
+        new_animation_speed = st.selectbox("Animation Speed", speed_options,
+                                         index=speed_options.index(st.session_state.animation_speed))
+        
+        new_show_timestamps = st.checkbox("Show Message Timestamps", st.session_state.show_timestamps)
+        
+        # Content & Context
+        st.markdown("### Content Settings")
+        
+        citation_options = ["MLA", "APA", "None"]
+        new_citation_style = st.selectbox("Citation Style", citation_options,
+                                        index=citation_options.index(st.session_state.citation_style))
+        
+        technical_options = ["Basic", "Intermediate", "Advanced"]
+        new_technical_level = st.selectbox("Technical Detail Level", technical_options,
+                                         index=technical_options.index(st.session_state.technical_level))
+        
+        language_options = [
+            "English","Spanish - Español","French - Français","German - Deutsch","Italian - Italiano",
+            "Portuguese - Português","Arabic - العربية","Mandarin Chinese - 中文 (普通话)","Cantonese - 廣東話","Russian - Русский",
+            "Japanese - 日本語","Korean - 한국어","Hindi - हिन्दी","Bengali - বাংলা","Urdu - اردو",
+            "Punjabi - ਪੰਜਾਬੀ","Turkish - Türkçe","Persian (Farsi) - فارسی","Greek - Ελληνικά","Hebrew - עברית",
+        
+            "Polish - Polski","Ukrainian - Українська","Czech - Čeština","Slovak - Slovenčina","Slovenian - Slovenščina",
+            "Croatian - Hrvatski","Serbian - Српски","Bosnian - Bosanski","Bulgarian - Български","Romanian - Română",
+            "Hungarian - Magyar","Finnish - Suomi","Swedish - Svenska","Norwegian - Norsk","Danish - Dansk",
+            "Icelandic - Íslenska","Dutch - Nederlands","Afrikaans - Afrikaans","Swahili - Kiswahili","Zulu - isiZulu",
+        
+            "Xhosa - isiXhosa","Amharic - አማርኛ","Somali - Af-Soomaali","Yoruba - Yorùbá","Igbo - Igbo",
+            "Hausa - Hausa","Thai - ไทย","Lao - ລາວ","Khmer - ខ្មែរ","Vietnamese - Tiếng Việt",
+            "Malay - Bahasa Melayu","Indonesian - Bahasa Indonesia","Tagalog - Tagalog","Filipino - Filipino","Burmese - မြန်မာစာ",
+            "Mongolian - Монгол","Kazakh - Қазақ","Uzbek - Oʻzbekcha","Tajik - Тоҷикӣ","Pashto - پښتو",
+        
+            "Kurdish - Kurdî","Georgian - ქართული","Armenian - Հայերեն","Azerbaijani - Azərbaycan dili","Malayalam - മലയാളം",
+            "Tamil - தமிழ்","Telugu - తెలుగు","Kannada - ಕನ್ನಡ","Marathi - मराठी","Gujarati - ગુજરાતી",
+            "Odia - ଓଡ଼ିଆ","Sinhala - සිංහල","Nepali - नेपाली","Dzongkha - རྫོང་ཁ","Tibetan - བོད་ཡིག",
+            "Maori - Te Reo Māori","Samoan - Gagana Sāmoa","Tongan - Lea Faka-Tonga","Hawaiian - ʻŌlelo Hawaiʻi","Cherokee - ᏣᎳᎩ",
+        
+            "Navajo - Diné Bizaad","Quechua - Runa Simi","Aymara - Aymar aru","Guaraní - Avañe'ẽ","Nahuatl - Nāhuatl",
+            "Mayan - Maya","Basque - Euskara","Catalan - Català","Galician - Galego","Luxembourgish - Lëtzebuergesch",
+            "Maltese - Malti","Esperanto - Esperanto","Haitian Creole - Kreyòl Ayisyen","Creole (Mauritius) - Kreol Morisien","Wolof - Wolof",
+            "Fula - Fulfulde","Twi - Twi","Bambara - Bamanankan","Mandinka - Mandi’nka kango","Shona - chiShona",
+        
+            "Sesotho - Sesotho","Setswana - Setswana","Lingala - Lingála","Kinyarwanda - Ikinyarwanda","Kirundi - Ikirundi",
+            "Chichewa - Chichewa","Tsonga - Xitsonga","Luganda - Luganda","Malagasy - Malagasy","Fijian - Vosa Vakaviti",
+            "Tok Pisin - Tok Pisin","Hmong - Hmoob","Chamorro - Finoʼ Chamoru","Marshallese - Kajin M̧ajeļ","Palauan - a tekoi er a Belau",
+            "Greenlandic - Kalaallisut","Inuktitut - ᐃᓄᒃᑎᑐᑦ","Sami - Sámegiella","Occitan - Occitan","Frisian - Frysk",
+        
+            "Breton - Brezhoneg","Corsican - Corsu","Scottish Gaelic - Gàidhlig","Irish - Gaeilge","Welsh - Cymraeg",
+            "Manx - Gaelg","Cornish - Kernewek","Ladino - Djudeo-espanyol","Yiddish - ייִדיש"
+        ]
+        new_language = st.selectbox("Language", language_options,
+                                  index=language_options.index(st.session_state.language))
+        
+        # Reset button
+        if st.button("Reset to Defaults"):
+            # Reset all preferences to defaults
+            st.session_state.font_family = "Enviro Sans"
+            st.session_state.font_size = 16
+            st.session_state.response_length = "Standard"
+            st.session_state.reading_level = "High School"
+            st.session_state.color_palette = "Default"
+            st.session_state.chat_density = "Standard"
+            st.session_state.animation_speed = "Normal"
+            st.session_state.show_timestamps = False
+            st.session_state.citation_style = "MLA"
+            st.session_state.technical_level = "Intermediate"
+            st.session_state.language = "English"
+            update_chat_model()
+            st.rerun()
+        
+        # Check if any preferences changed and update model if needed
+        preferences_changed = (
+            newfont != st.session_state.font_family or
+            new_font_size != st.session_state.font_size or
+            new_response_length != st.session_state.response_length or
+            new_reading_level != st.session_state.reading_level or
+            new_color_palette != st.session_state.color_palette or
+            new_chat_density != st.session_state.chat_density or
+            new_animation_speed != st.session_state.animation_speed or
+            new_show_timestamps != st.session_state.show_timestamps or
+            new_citation_style != st.session_state.citation_style or
+            new_technical_level != st.session_state.technical_level or
+            new_language != st.session_state.language
+        )
+        
+        # Update session state
+        st.session_state.font_family = newfont
+        st.session_state.font_size = new_font_size
+        st.session_state.response_length = new_response_length
+        st.session_state.reading_level = new_reading_level
+        st.session_state.color_palette = new_color_palette
+        st.session_state.chat_density = new_chat_density
+        st.session_state.animation_speed = new_animation_speed
+        st.session_state.show_timestamps = new_show_timestamps
+        st.session_state.citation_style = new_citation_style
+        st.session_state.technical_level = new_technical_level
+        st.session_state.language = new_language
+        
+        # Update model if AI-affecting preferences changed
+        ai_preferences_changed = (
+            new_response_length != st.session_state.get('prev_response_length', '') or
+            new_reading_level != st.session_state.get('prev_reading_level', '') or
+            new_citation_style != st.session_state.get('prev_citation_style', '') or
+            new_technical_level != st.session_state.get('prev_technical_level', '') or
+            new_language != st.session_state.get('prev_language', '')
+        )
+        
+        if ai_preferences_changed:
+            update_chat_model()
+            # Store previous values
+            st.session_state.prev_response_length = new_response_length
+            st.session_state.prev_reading_level = new_reading_level
+            st.session_state.prev_citation_style = new_citation_style
+            st.session_state.prev_technical_level = new_technical_level
+            st.session_state.prev_language = new_language
+        
+        if preferences_changed:
+            st.rerun()
 
 # -------------------------------------------
-# Background styles (CSS only — no JS here)
+# Dynamic Styles based on preferences
 # -------------------------------------------
-st.markdown(
-    """
+def get_dynamic_styles():
+    # Default palette if COLOR_PALETTES is empty
+    default_palette = {
+        "primary": "#00D4FF",
+        "secondary": "#8B5CF6", 
+        "accent": "#10B981",
+        "bg_primary": "#000000",
+        "bg_secondary": "#03060c",
+        "gradient": "linear-gradient(135deg, #00D4FF 0%, #8B5CF6 50%, #10B981 100%)",
+        "message_user": "linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))",
+        "message_assistant": "linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.05))",
+        "avatar_user": "linear-gradient(135deg, #ffffff, #e0e0e0)",
+        "avatar_assistant": "linear-gradient(135deg, #4CAF50, #2196F3)"
+    }
+    
+    palette = COLOR_PALETTES.get(st.session_state.color_palette, default_palette)
+
+    # Animation speed settings
+    typing_speeds = {"Off": 0, "Slow": 0.05, "Normal": 0.02, "Fast": 0.01}
+    typing_speed = typing_speeds[st.session_state.animation_speed]
+
+    # Chat density settings
+    density_settings = {
+        "Compact": {"message_margin": "0.75rem", "message_padding": "1rem"},
+        "Standard": {"message_margin": "1.5rem", "message_padding": "1.5rem"},
+        "Spacious": {"message_margin": "2rem", "message_padding": "2rem"}
+    }
+    density = density_settings[st.session_state.chat_density]
+
+    # Fix font import and create proper font stack
+    font_name = st.session_state.font_family
+
+    # Handle "Normal" font (use Streamlit's default)
+    if font_name == "Enviro Sans":
+        font_stack = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font_import = ""
+    else:
+        font_import_name = font_name.replace(' ', '+')
+        font_stack = f"'{font_name}', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font_import = f"@import url('https://fonts.googleapis.com/css2?family={font_import_name}:wght@300;400;500;600;700&display=swap');"
+
+    return f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Import Google Font only if not Normal - Fixed import */
+{font_import}
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-* { font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important; }
+/* Make sure any material icon <span> renders correctly and force-apply styling */
+.material-icons {{
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  display: inline-block !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  font-feature-settings: 'liga' !important;
+}}
 
-.stApp {
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-    background-color: #0e1117;
-}
+/* Hide any original textual span inside the sidebar toggle button so the icon span shows */
+[data-testid="stSidebarNav"] + div button span:not(.material-icons),
+[data-label="Close sidebar"] span:not(.material-icons) {{
+  display: none !important;
+}}
 
-/* Hide Streamlit chrome */
-#MainMenu, footer, header, .stDeployButton { visibility: hidden !important; }
+/* Global reset and base styling */
+* {{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}}
 
-.header {
-    position: relative;
-    z-index: 5;
+html, body, .stApp {{
+    background: {palette['bg_primary']} !important;
+    color: #ffffff !important;
+    font-family: {font_stack} !important;
+    font-size: {st.session_state.font_size}px !important;
+    height: 100vh !important;
+}}
+
+/* Force font on all text elements - FAMILY ONLY, preserve sizes */
+.stApp, .stApp * {{
+    font-family: {font_stack} !important;
+}}
+
+/* Specifically target common text elements - FONT FAMILY ONLY */
+.stApp, .stApp *,
+p, span, div, 
+.stMarkdown, .stMarkdown *, 
+.message-content, .message-content *,
+.stChatInput textarea,
+.stSelectbox, .stSelectbox *,
+.stSlider, .stSlider *,
+.stButton, .stButton *,
+.stSidebar, .stSidebar * {{
+    font-family: {font_stack} !important;
+}}
+
+/* Preserve heading sizes while applying font family */
+h1, .stMarkdown h1 {{
+    font-family: {font_stack} !important;
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+}}
+
+h2, .stMarkdown h2 {{
+    font-family: {font_stack} !important;
+    font-size: 2rem !important;
+    font-weight: 600 !important;
+}}
+
+h3, .stMarkdown h3 {{
+    font-family: {font_stack} !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+}}
+
+h4, .stMarkdown h4 {{
+    font-family: {font_stack} !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+}}
+
+h5, .stMarkdown h5 {{
+    font-family: {font_stack} !important;
+    font-size: 1.125rem !important;
+    font-weight: 500 !important;
+}}
+
+h6, .stMarkdown h6 {{
+    font-family: {font_stack} !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+}}
+
+/* Hide elements */
+footer {{ 
+    visibility: hidden !important; 
+    height: 0 !important;
+}}
+
+.stDeployButton {{
+    visibility: hidden !important;
+}}
+
+.stApp > header {{
+    background: transparent !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid {palette['primary']}40 !important;
+    z-index: 999999;
+    position: sticky;
+    top: 0 !important;
+}}
+
+/* FIXED: Sidebar styling */
+.stSidebar {{
+    background: {palette['bg_secondary']} !important;
+    z-index: 999998 !important;
+    padding-left: 1rem; /* or desired padding size */
+}}
+
+.stSidebar > div:first-child {{
+    background: {palette['bg_secondary']} !important;
+    border-right: 1px solid {palette['primary']}40 !important;
+}}
+
+/* Remove the vertical line after the header and before Reset button */
+.stSidebar .stMarkdown h1 + hr, 
+.stSidebar .stMarkdown h3 + hr,
+.stSidebar hr {{
+    display: none !important;
+}}
+
+/* Sidebar components styling */
+.stSidebar .stSelectbox > div > div {{
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid {palette['primary']}40 !important;
+    color: #ffffff !important;
+    font-family: {font_stack} !important;
+}}
+
+.stSidebar .stSlider > div > div > div {{
+    color: {palette['primary']} !important;
+    font-family: {font_stack} !important;
+}}
+
+.stSidebar .stSlider .st-bf {{
+    background-color: {palette['primary']} !important;
+}}
+
+.stSidebar .stSlider .st-bg {{
+    background: {palette['gradient']} !important;
+}}
+
+.stSidebar .stCheckbox > label {{
+    color: #ffffff !important;
+    font-family: {font_stack} !important;
+}}
+
+.stSidebar .stButton > button {{
+    background: {palette['gradient']} !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    width: 100% !important;
+    animation: shimmer 4s ease-in-out infinite !important;
+    background-size: 300% 300% !important;
+    font-family: {font_stack} !important;
+}}
+
+.stSidebar .stButton > button:hover {{
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}}
+
+/* FIXED: Main app container - override Streamlit containers */
+.block-container {{
+    background: {palette['bg_primary']} !important;
+    padding-top: 1rem !important;
+}}
+
+.main .block-container {{
+    background: {palette['bg_primary']} !important;
+}}
+
+/* Main content area */
+.main-content {{
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 15 !important;
+}}
+
+/* FIXED: Header section with proper background */
+.header {{
+    flex: 0 0 auto !important;
     text-align: center;
-    padding: 2rem 0 0.5rem 0;
-    background: rgba(0,0,0,0.08);
-    border-bottom: 1px solid rgba(0, 212, 255, 0.08);
-    backdrop-filter: blur(18px);
-}
+    padding: 1rem 0;
+    position: relative;
+    z-index: 20;
+    background: {palette['bg_primary']} !important;
+    backdrop-filter: blur(20px);
+}}
 
-.title {
-    background: linear-gradient(135deg, #00D4FF 0%, #8B5CF6 50%, #10B981 100%);
+.title {{
+    font-size: 3rem;
+    font-weight: 700;
+    background: {palette['gradient']};
     background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-size: 3.2rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    animation: titleShimmer 4s ease infinite, titleFloat 6s ease-in-out infinite;
-    text-shadow: 0 0 50px rgba(0, 212, 255, 0.3);
-}
+    animation: shimmer 4s ease-in-out infinite;
+    margin: 0;
+    font-family: {font_stack} !important;
+}}
 
-@media (max-width: 768px){ .title { font-size: 2.4rem; } }
+@keyframes shimmer {{
+    0%, 100% {{ background-position: 0% 50%; }}
+    50% {{ background-position: 100% 50%; }}
+}}
 
-@keyframes titleShimmer { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
-@keyframes titleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+/* Welcome section */
+.welcome-section {{
+    flex: 0 0 auto !important;
+    padding: 1rem 2rem 2rem 2rem;
+    background: {palette['bg_primary']} !important;
+}}
 
-.chat-container {
+.welcome {{
+    text-align: center;
+    padding: 1.5rem;
+    background: {palette['message_assistant']};
+    border-radius: 16px;
+    border: 1px solid {palette['primary']}40;
+    backdrop-filter: blur(10px);
     max-width: 900px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 3rem 1rem;
-    position: relative;
-    z-index: 5;
-}
+}}
 
-.message {
-    margin-bottom: 1.1rem;
-    padding: 1.4rem;
-    border-radius: 18px;
+.welcome h2 {{
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-family: {font_stack} !important;
+}}
+
+.welcome .analyzing-text {{ /* Added class to the h2 tag */
+    background: {palette['gradient']};
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    font-weight: bold;
+    font-family: {font_stack} !important;
+}}
+
+.welcome p {{
+    color: #cccccc;
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-family: {font_stack} !important;
+}}
+
+/* Chat messages area */
+.chat-messages {{
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    padding: 0 2rem;
+    margin-bottom: 1rem;
+    background: {palette['bg_primary']} !important;
+}}
+
+.chat-messages::-webkit-scrollbar {{
+    width: 8px;
+}}
+.chat-messages::-webkit-scrollbar-track {{
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}}
+.chat-messages::-webkit-scrollbar-thumb {{
+    background: {palette['primary']};
+    border-radius: 10px;
+}}
+
+/* Messages */
+.message {{
+    display: flex;
+    gap: 1rem;
+    margin-bottom: {density['message_margin']};
+    padding: {density['message_padding']};
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: {density['message_margin']};
+}}
+
+.user-message {{
+    flex-direction: row-reverse;
+    background: {palette['message_user']};
+    border-color: {palette['primary']}60;
+}}
+
+.assistant-message {{
+    background: {palette['message_assistant']};
+    border-color: {palette['primary']}60;
+}}
+
+.avatar {{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}}
+
+.user-avatar {{
+    background: {palette['avatar_user']};
+    color: #000000;
+}}
+
+.assistant-avatar {{
+    background: {palette['avatar_assistant']};
+}}
+
+.message-content {{
+    flex: 1;
+    line-height: 1.6;
+    font-family: {font_stack} !important;
+}}
+
+.message-timestamp {{
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.5rem;
+    font-family: {font_stack} !important;
+}}
+
+.message-content h1, .message-content h2, .message-content h3,
+.message-content h4, .message-content h5, .message-content h6 {{
+    color: #ffffff;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-family: {font_stack} !important;
+}}
+
+/* Specific heading sizes in messages */
+.message-content h1 {{ font-size: 1.8rem !important; font-weight: 700 !important; }}
+.message-content h2 {{ font-size: 1.6rem !important; font-weight: 600 !important; }}
+.message-content h3 {{ font-size: 1.4rem !important; font-weight: 600 !important; }}
+.message-content h4 {{ font-size: 1.2rem !important; font-weight: 500 !important; }}
+.message-content h5 {{ font-size: 1.1rem !important; font-weight: 500 !important; }}
+.message-content h6 {{ font-size: 1rem !important; font-weight: 500 !important; }}
+
+.message-content code {{
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: {palette['primary']};
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace !important;
+}}
+
+.message-content pre {{
+    background: rgba(0, 0, 0, 0.7);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid {palette['primary']}60;
+}}
+
+.message-content pre code {{
+    font-family: 'Courier New', monospace !important;
+}}
+
+/* Analyzing message animation */
+.analyzing-text {{
+    background: {palette['gradient']};
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    font-weight: bold;
+    font-family: {font_stack} !important;
+}}
+
+/* FIXED: Chat Input Section with proper background */
+.chat-input-section {{
+    flex: 0 0 auto !important;
+    padding: 1rem 2rem 2rem 2rem;
+    background: {palette['bg_primary']} !important;
     backdrop-filter: blur(20px);
-    transition: transform .25s ease, box-shadow .25s ease;
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.28);
-}
+    position: relative;
+    z-index: 25;
+}}
 
-.user-message {
-    background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0,212,255,0.05));
-    border-left: 4px solid #00D4FF;
-    margin-left: 6%;
-}
-.assistant-message {
-    background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(139,92,246,0.05));
-    border-left: 4px solid #8B5CF6;
-    margin-right: 6%;
-}
+.stApp > div:last-child {{
+    background: transparent;
+    backdrop-filter: blur(20px);
+}}
 
-.message:hover { transform: translateY(-2px); box-shadow: 0 16px 46px rgba(0,0,0,0.38); }
+.stChatInput {{
+    background: {palette['bg_primary']} !important;
+}}
 
-.msg-header {
-    display: flex; align-items: center; gap: .6rem; margin-bottom: .7rem;
-    font-weight: 700; letter-spacing: -.01em; font-size: 1rem;
-}
-.user-header { color: #38bdf8; text-shadow: 0 0 10px rgba(56,189,248,.28); }
-.enviro-header { color: #a78bfa; text-shadow: 0 0 10px rgba(167,139,250,.28); }
+.stChatInput > div {{
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    background: {palette['bg_primary']} !important;
+}}
 
-.msg-content { color: #f1f5f9; line-height: 1.8; font-size: 1.03rem; letter-spacing: .01em; }
-.msg-content h1, .msg-content h2, .msg-content h3 { color: #fff; font-weight: 700; margin: 1.2rem 0 .7rem; }
-.msg-content h1 { font-size: 1.7rem; background: linear-gradient(135deg,#00D4FF,#8B5CF6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
-.msg-content h2 { font-size: 1.35rem; background: linear-gradient(135deg,#8B5CF6,#10B981); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
-.msg-content h3 { font-size: 1.18rem; background: linear-gradient(135deg,#10B981,#00D4FF); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
-.msg-content code { background: rgba(0,0,0,.6); color: #00D4FF; padding: .22rem .5rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: .95rem; border: 1px solid rgba(0,212,255,.18); }
-.msg-content pre { background: rgba(0,0,0,.8); color: #f1f5f9; padding: 1.1rem; border-radius: 12px; overflow-x: auto; border: 1px solid rgba(139,92,246,.18); font-family: 'JetBrains Mono', monospace; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
-.msg-content a { color: #38bdf8; text-decoration: none; border-bottom: 1px solid rgba(56,189,248,.28); }
-.msg-content a:hover { color: #0ea5e9; border-bottom-color: #0ea5e9; text-shadow: 0 0 15px rgba(14,165,233,.45); }
-.welcome { background: linear-gradient(135deg,rgba(0,212,255,.10),rgba(139,92,246,.10),rgba(16,185,129,.10)); border-radius: 20px; padding: 1.6rem; border: 1px solid rgba(255,255,255,.08); }
+.stChatInput > div > div {{
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid {palette['primary']}60 !important;
+    border-radius: 12px !important;
+}}
 
-.stChatInput > div > div {
-    background: linear-gradient(135deg, rgba(15,23,42,.9) 0%, rgba(30,41,59,.85) 100%) !important;
-    backdrop-filter: blur(18px) !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 8px 28px rgba(0,0,0,.28) !important;
-}
-.stChatInput textarea { background: transparent !important; color: #f1f5f9 !important; font-size: 1.02rem !important; border: none !important; padding: 1rem 1.2rem !important; }
-.stChatInput button {
-    background: linear-gradient(135deg, #00D4FF 0%, #8B5CF6 100%) !important;
-    border: none !important; border-radius: 12px !important; color: #fff !important; font-weight: 600 !important;
-}
+.stChatInput textarea {{
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-size: {st.session_state.font_size}px !important;
+    padding: 0.5rem 1rem !important;
+    font-family: {font_stack} !important;
+}}
+
+.stChatInput textarea::placeholder {{
+    color: #888888 !important;
+    font-family: {font_stack} !important;
+}}
+
+.stChatInput button {{
+    background: {palette['gradient']} !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+    animation: shimmer 4s ease-in-out infinite !important;
+    background-size: 300% 300% !important;
+    font-family: {font_stack} !important;
+}}
+
+.stChatInput button:hover {{
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}}
+
+/* FIXED: Force all containers to use theme background */
+.stApp [data-testid="stAppViewContainer"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+.stApp [data-testid="stMain"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+.stApp [data-testid="stMain"] > div {{
+    background: {palette['bg_primary']} !important;
+}}
+
+/* Typing effect cursor */
+.typing-cursor {{
+    animation: blink 1s step-end infinite;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: {font_stack} !important;
+}}
+
+@keyframes blink {{
+    from, to {{ color: transparent; }}
+    50% {{ color: white; }}
+}}
+
+/* Mobile Styles */
+@media (max-width: 768px) {{
+    .title {{
+        font-size: 2.5rem;
+    }}
+    .welcome h2 {{
+        font-size: 1.5rem;
+    }}
+    .welcome p {{
+        font-size: 1rem;
+    }}
+    .chat-messages, .chat-input-section {{
+        padding: 0 1rem;
+    }}
+    .message {{
+        padding: 1rem;
+    }}
+}}
+
+.font-light {{ font-weight: 300 !important; }}
+.font-normal {{ font-weight: 400 !important; }}
+.font-medium {{ font-weight: 500 !important; }}
+.font-semibold {{ font-weight: 600 !important; }}
+.font-bold {{ font-weight: 700 !important; }}
+
+/* Sidebar toggle icons */
+[data-testid="stSidebarNav"] + div button .material-icons,
+[data-label="Close sidebar"] .material-icons {{
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    color: white; /* or your palette color */
+}}
+
+/* Force Streamlit's sidebar toggle ligatures to render as Material Icons */
+button span[data-testid="stSidebarCollapseIcon"] {{
+    font-family: 'Material Icons' !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}}
+
+/* Force all Streamlit Material icon spans to render properly */
+[data-testid="stIconMaterial"] {{
+    font-family: 'Material Icons' !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+}}
+
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", typing_speed
 
-# -------------------------------------------------------
-# Quantum Canvas (JS contained in components.html only)
-# -------------------------------------------------------
-from streamlit.components.v1 import html as components_html
-
-def inject_quantum_canvas():
-    """
-    Draws a full-screen canvas behind content with quantum-inspired particles:
-    - Randomness: seeded per-particle noise & jitter
-    - Fluid motion: layered wave/“curl-like” field
-    - Uncertainty: blur/alpha/size breathing
-    - Tunneling: rare teleports across barriers/edges
-    """
-    # unique key to avoid caching
-    key = str(uuid.uuid4())
-    components_html(dedent(f"""
-    <div id="qc-wrap-{key}" style="position:fixed; inset:0; z-index:1; pointer-events:none;">
-      <canvas id="qc-canvas-{key}" style="width:100%; height:100%; display:block;"></canvas>
+# -------------------------------------------
+# Chat Functions
+# -------------------------------------------
+def display_message(role, content, avatar_icon, timestamp=None):
+    avatar_class = "user-avatar" if role == "user" else "assistant-avatar"
+    message_class = "user-message" if role == "user" else "assistant-message"
+    
+    timestamp_html = ""
+    if st.session_state.show_timestamps and timestamp:
+        timestamp_html = f'<div class="message-timestamp">{timestamp}</div>'
+    
+    st.markdown(f"""
+    <div class="message {message_class}">
+        <div class="avatar {avatar_class}">{avatar_icon}</div>
+        <div class="message-content">{content}{timestamp_html}</div>
     </div>
-    <script>
-    (function(){{
-      const canvas = document.getElementById(`qc-canvas-{key}`);
-      const ctx = canvas.getContext("2d");
-      let w, h, dpr;
+    """, unsafe_allow_html=True)
 
-      function resize(){{
-        dpr = window.devicePixelRatio || 1;
-        w = canvas.clientWidth;
-        h = canvas.clientHeight;
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-      }}
-      resize();
-      window.addEventListener("resize", resize);
-
-      // ---------- Utilities ----------
-      function rand(a=0,b=1){{ return a + Math.random()*(b-a); }}
-      function lerp(a,b,t){{ return a + (b-a)*t; }}
-      function clamp(v,a,b){{ return Math.max(a,Math.min(b,v)); }}
-      function hash(n){{ return Math.sin(n*1e4)*1e4 - Math.floor(Math.sin(n*1e4)*1e4); }}
-
-      // Lightweight pseudo-noise (value noise-ish)
-      function vnoise2(x,y){{
-        const xi = Math.floor(x), yi = Math.floor(y);
-        const xf = x - xi, yf = y - yi;
-        const h = (i,j)=>hash((i*183.1567)^(j*97.345));
-        const v00 = h(xi,yi), v10 = h(xi+1,yi), v01 = h(xi,yi+1), v11 = h(xi+1,yi+1);
-        const sx = xf*xf*(3-2*xf), sy = yf*yf*(3-2*yf);
-        const ix0 = v00*(1-sx) + v10*sx;
-        const ix1 = v01*(1-sx) + v11*sx;
-        return ix0*(1-sy) + ix1*sy;
-      }}
-
-      // Velocity field: layered waves + noise -> fluid-ish motion
-      function flowField(x,y,t){{
-        // Normalize coords
-        const nx = x / w, ny = y / h;
-        // Two interfering waves
-        const a = Math.sin( (nx*8.0 + t*0.08) * Math.PI*2 );
-        const b = Math.cos( (ny*6.0 - t*0.06) * Math.PI*2 );
-        const c = Math.sin( ((nx+ny)*6.0 + t*0.05) * Math.PI*2 );
-
-        // Value noise for advection
-        const n1 = vnoise2(nx*5.0 + t*0.03, ny*5.0 - t*0.02);
-        const n2 = vnoise2(nx*3.0 - t*0.02, ny*7.0 + t*0.025);
-
-        // Compose vector; small magnitude for subtle, fluid drift
-        const vx =  0.4*a + 0.35*c + 0.6*(n1-0.5);
-        const vy = -0.35*b + 0.35*c + 0.6*(n2-0.5);
-        return [vx, vy];
-      }}
-
-      // Virtual barriers: thin regions where tunneling can occur
-      const barriers = [
-        {{ x: 0.33, y: 0.25, w: 0.34, h: 0.02 }},
-        {{ x: 0.15, y: 0.62, w: 0.7,  h: 0.018 }}
-      ];
-      function inBarrier(x,y){{
-        for (let b of barriers){{
-          const bx = b.x*w, by = b.y*h, bw = b.w*w, bh = b.h*h;
-          if (x>=bx && x<=bx+bw && y>=by && y<=by+bh) return true;
-        }}
-        return false;
-      }}
-
-      // Particles
-      const COUNT = Math.floor(Math.min(220, (w*h)/35000)); // density scaling
-      const particles = [];
-      const nowSeed = Math.random()*1000;
-
-      for (let i=0;i<COUNT;i++){{
-        const seed = nowSeed + i*17.17;
-        particles.push({{
-          x: rand(0,w),
-          y: rand(0,h),
-          vx: 0, vy: 0,
-          baseSize: rand(0.7, 1.8),    // smaller particles
-          blur: rand(0.4, 2.0),
-          alpha: rand(0.25, 0.55),
-          jitter: rand(0.1, 0.5),
-          seed,
-          life: rand(3,10),
-          tlife: 0
-        }});
-      }}
-
-      let last = performance.now();
-      function step(ts){{
-        const dt = Math.min(0.05, (ts - last) / 1000); // clamp for stability
-        last = ts;
-
-        ctx.clearRect(0,0,w,h);
-
-        // Soft glow backdrop (subtle)
-        ctx.save();
-        ctx.globalAlpha = 0.05;
-        const grad = ctx.createRadialGradient(w*0.5,h*0.5,0, w*0.5,h*0.5, Math.max(w,h)*0.7);
-        grad.addColorStop(0, `rgba(139,92,246,0.12)`);
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,w,h);
-        ctx.restore();
-
-        const t = ts/1000;
-
-        for (let p of particles){{
-          // Flow field + randomness
-          const [fx,fy] = flowField(p.x, p.y, t);
-          const jx = (hash(p.seed + t*0.7)-0.5) * p.jitter;
-          const jy = (hash(p.seed*2.0 + t*0.7)-0.5) * p.jitter;
-
-          // Integrate velocity (light smoothing)
-          p.vx = lerp(p.vx, fx*28 + jx, 0.06);
-          p.vy = lerp(p.vy, fy*28 + jy, 0.06);
-
-          let nx = p.x + p.vx*dt;
-          let ny = p.y + p.vy*dt;
-
-          // Virtual barrier interaction: sometimes "tunnel" through
-          if (inBarrier(nx,ny)){{
-            // 7% chance to tunnel (teleport across barrier)
-            if (Math.random() < 0.07){{
-              // jump to mirrored side of barrier region
-              nx += (Math.random() < 0.5 ? 40 : -40) * (0.5 + Math.random());
-              ny += (Math.random() < 0.5 ? 28 : -28) * (0.5 + Math.random());
-            }} else {{
-              // gentle deflection along barrier
-              nx += (Math.random()<0.5 ? -1 : 1) * 6;
-              ny += (Math.random()<0.5 ? -1 : 1) * 2;
-            }}
-          }}
-
-          // Edge wrap with tunneling flavor
-          if (nx < -10) nx = w + 10;
-          if (nx > w + 10) nx = -10;
-          if (ny < -10) ny = h + 10;
-          if (ny > h + 10) ny = -10;
-
-          p.x = nx; p.y = ny;
-
-          // Uncertainty: alpha flicker, size breathing, blur drift
-          const breathe = 0.6 + 0.4*Math.sin(t*2.0 + p.seed);
-          const alpha = clamp(p.alpha * (0.7 + 0.3*Math.sin(t*1.7 + p.seed*1.3)), 0.12, 0.65);
-          const size = p.baseSize * breathe;
-          const blur = p.blur * (0.7 + 0.6*hash(p.seed + t*0.35));
-
-          // Draw particle (soft radial)
-          ctx.save();
-          ctx.filter = `blur(${{blur}}px)`;
-          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size*6);
-          g.addColorStop(0, `rgba(0,212,255,${{alpha}})`);
-          g.addColorStop(0.5, `rgba(139,92,246,${{alpha*0.5}})`);
-          g.addColorStop(1, "rgba(0,0,0,0)");
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, size*6, 0, Math.PI*2);
-          ctx.fill();
-          ctx.restore();
-
-          // Life/tunneling reset
-          p.tlife += dt;
-          if (p.tlife > p.life){{
-            // occasional big tunnel jump to new region
-            if (Math.random() < 0.25){{
-              p.x = rand(0,w); p.y = rand(0,h);
-            }}
-            p.tlife = 0; p.life = rand(3,10);
-          }}
-        }}
-        requestAnimationFrame(step);
-      }}
-      requestAnimationFrame(step);
-    }})();
-    </script>
-    """), height=0)
-
-
-# ------------------------
-# Typing / streaming effect
-# ------------------------
-def stream_response(response_text: str):
-    typing_placeholder = st.empty()
-    typing_placeholder.markdown(
-        """
+def stream_response(response):
+    # Get animation speed
+    speed_map = {"Off": 0, "Slow": 0.05, "Normal": 0.02, "Fast": 0.01}
+    typing_speed = speed_map[st.session_state.animation_speed]
+    
+    # 1. Display "Enviro is analyzing..." message with animated gradient
+    analyzing_placeholder = st.empty()
+    analyzing_message_html = """
         <div class="message assistant-message">
-            <div class="msg-header enviro-header">🌿 Enviro</div>
-            <div class="msg-content"><em>Analyzing environmental data…</em></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Simulated "thinking" delay (short)
-    time.sleep(0.6)
-
-    words = response_text.split()
-    streamed = ""
-    placeholder = st.empty()
-
-    for i, w in enumerate(words):
-        streamed += w + " "
-        html = advanced_markdown(streamed.strip())
-        placeholder.markdown(
-            f"""
-            <div class="message assistant-message">
-                <div class="msg-header enviro-header">🌿 Enviro</div>
-                <div class="msg-content">{html}<span style="color:#8B5CF6;animation: blink 1s infinite;font-weight:bold;">|</span></div>
+            <div class="avatar assistant-avatar">🌐</div>
+            <div class="message-content">
+                <span class="analyzing-text">Enviro is analyzing...</span>
             </div>
-            <style>@keyframes blink {{0%,50%{{opacity:1}} 51%,100%{{opacity:0}}}}</style>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        # variable pacing
-        if w.endswith((".", "!", "?")):
-            time.sleep(0.08)
-        elif w.endswith((",", ":", ";")):
-            time.sleep(0.045)
-        else:
-            time.sleep(0.02)
-
-    final_html = advanced_markdown(streamed.strip())
-    placeholder.markdown(
-        f"""
-        <div class="message assistant-message">
-            <div class="msg-header enviro-header">🌿 Enviro</div>
-            <div class="msg-content">{final_html}</div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    typing_placeholder.empty()
-    return streamed.strip()
+    """
+    analyzing_placeholder.markdown(analyzing_message_html, unsafe_allow_html=True)
+    time.sleep(2) # Show message for a couple of seconds
 
+    # 2. Clear the analyzing message and prepare for streaming
+    analyzing_placeholder.empty()
+    full_response = ""
+    message_placeholder = st.empty()
+    
+    # 3. Stream the response (skip if animation is off)
+    if typing_speed == 0:
+        # No animation - show full response immediately
+        for chunk in response:
+            full_response += chunk.text
+        
+        message_placeholder.markdown(f"""
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">{full_response}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Animated typing
+        for chunk in response:
+            full_response += chunk.text
+            message_placeholder.markdown(f"""
+                <div class="message assistant-message">
+                    <div class="avatar assistant-avatar">🌐</div>
+                    <div class="message-content">{full_response} <span class="typing-cursor">|</span></div>
+                </div>
+            """, unsafe_allow_html=True)
+            time.sleep(typing_speed)
+
+        # 4. Final render without cursor
+        message_placeholder.markdown(f"""
+            <div class="message assistant-message">
+                <div class="avatar assistant-avatar">🌐</div>
+                <div class="message-content">{full_response}</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    return full_response
 
 # -------------
-# Main UI
+# Main App
 # -------------
 def main():
     initialize_session_state()
+    
+    # Render sidebar FIRST and ALWAYS
+    render_sidebar()
 
-    # Header
-    st.markdown(
-        """
-        <div class="header">
-            <h1 class="title">🌿 Meet Enviro</h1>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Background canvas (behind everything)
-    inject_quantum_canvas()
-
-    # Chat container
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-
+    # Apply dynamic styles
+    styles, typing_speed = get_dynamic_styles()
+    st.markdown(styles, unsafe_allow_html=True)
+    
+    # Header section
+    st.markdown("""
+    <div class="header">
+        <h1 class="title">🌐 Meet Enviro</h1>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Main content area
+    st.markdown('<div class="main-content">', unsafe_allow_html=True)
+    
+    # Display welcome message and chat history
+    st.markdown('<div class="chat-messages">', unsafe_allow_html=True)
     if not st.session_state.messages:
-        st.markdown(
-            """
+        st.markdown("""
             <div class="welcome">
-                <h2 style="margin:0 0 .4rem 0;">Welcome to EnviroCast AI</h2>
-                <p style="margin:0;">
-                    I’m Enviro, your quantum-enhanced environmental intelligence assistant.
-                    Ask me anything about air quality, pollution analysis, or climate solutions.
-                </p>
+                <h2>Welcome to EnviroCast's AI Chatbot</h2>
+                <p>I'm <span class="analyzing-text">Enviro</span>, your environmental intelligence assistant. Ask me about air quality, pollution, climate solutions, and environmental science or EnviroCast and quantum data.</p>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # Render history
-    for m in st.session_state.messages:
-        content = advanced_markdown(m["content"])
-        if m["role"] == "user":
-            st.markdown(
-                f"""
-                <div class="message user-message">
-                    <div class="msg-header user-header">👤 You</div>
-                    <div class="msg-content">{content}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        """, unsafe_allow_html=True)
+    
+    # Display chat history
+    for message in st.session_state.messages:
+        timestamp = message.get("timestamp", "")
+        if message["role"] == "user":
+            display_message("user", message["content"], "👤", timestamp)
         else:
-            st.markdown(
-                f"""
-                <div class="message assistant-message">
-                    <div class="msg-header enviro-header">🌿 Enviro</div>
-                    <div class="msg-content">{content}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
+            display_message("assistant", message["content"], "🌐", timestamp)
+    st.markdown('</div>', unsafe_allow_html=True) # End chat-messages
+    
+    st.markdown('</div>', unsafe_allow_html=True) # End main-content
+    
+    # Chat input section
+    st.markdown('<div class="chat-input-section">', unsafe_allow_html=True)
+    
     # Chat input
-    prompt = st.chat_input("Ask about environmental science, air quality, pollution analysis, or climate solutions…")
+    if prompt := st.chat_input("Ask me about environmental science, climate solutions or anything EnviroCast..."):
+        # Add timestamp if enabled
+        timestamp = ""
+        if st.session_state.show_timestamps:
+            timestamp = time.strftime("%H:%M:%S", time.localtime())
+        
+        # Add user message to history
+        st.session_state.messages.append({
+            "role": "user", 
+            "content": prompt,
+            "timestamp": timestamp
+        })
+        
+        # Rerun to display the user message and start the generation process
+        st.rerun()
 
-    if prompt:
-        # add user message
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    st.markdown('</div>', unsafe_allow_html=True) # End chat-input-section
 
-        # display immediately
-        user_html = advanced_markdown(prompt)
-        st.markdown(
-            f"""
-            <div class="chat-container">
-                <div class="message user-message">
-                    <div class="msg-header user-header">👤 You</div>
-                    <div class="msg-content">{user_html}</div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown("""
+    <script>
+    (function(){
+      const iconHref = "https://fonts.googleapis.com/icon?family=Material+Icons";
+      if(!document.querySelector('link[href="'+iconHref+'"]')) {
+        const l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = iconHref;
+        document.head.appendChild(l);
+      }
+    
+      function applyIcons(){
+        // Find open button
+        const openBtns = document.querySelectorAll('[data-testid="stSidebarNav"] + div button');
+        openBtns.forEach(btn => {
+          if (!btn.querySelector('.material-icons')) {
+            btn.innerHTML = '<span class="material-icons">menu</span>';
+          }
+        });
+    
+        // Find close button
+        const closeBtns = document.querySelectorAll('[data-label="Close sidebar"]');
+        closeBtns.forEach(btn => {
+          if (!btn.querySelector('.material-icons')) {
+            btn.innerHTML = '<span class="material-icons">close</span>';
+          }
+        });
+      }
+    
+      // Run once now
+      applyIcons();
+    
+      // Observe DOM changes
+      const observer = new MutationObserver(applyIcons);
+      observer.observe(document.body, {childList:true, subtree:true});
+    
+      // Fallback polling (every 500ms)
+      setInterval(applyIcons, 500);
+    })();
+    </script>
+    """, unsafe_allow_html=True)
 
-        # get assistant response
+    # After a prompt has been submitted and the page is rerunning,
+    # we check the last message to see if it's from the user and needs a response.
+    if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+        prompt = st.session_state.messages[-1]["content"]
+        
         try:
-            response = st.session_state.chat_session.send_message(prompt)
-            st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-            full = stream_response(response.text)
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            # store assistant message
-            st.session_state.messages.append({"role": "assistant", "content": full})
-            st.rerun()
-
+            # Prepare content for the model
+            content_parts = [prompt]
+            
+            # Send message with all content parts
+            response = st.session_state.chat_session.send_message(content_parts, stream=True)
+            full_response = stream_response(response)
+            
+            # Add timestamp if enabled
+            timestamp = ""
+            if st.session_state.show_timestamps:
+                timestamp = time.strftime("%H:%M:%S", time.localtime())
+            
+            # Add assistant message to history
+            st.session_state.messages.append({
+                "role": "assistant", 
+                "content": full_response,
+                "timestamp": timestamp
+            })
+            
         except Exception as e:
-            st.markdown(
-                f"""
-                <div class="chat-container">
-                    <div class="message assistant-message" style="border-left-color:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));">
-                        <div class="msg-header" style="color:#f87171;">⚠️ Error</div>
-                        <div class="msg-content" style="color:#fca5a5;">
-                            <strong>Error:</strong> {str(e)}<br><br>
-                            {"🔄 <em>API rate limit reached. Please try again in a moment.</em>" if "rate" in str(e).lower() else "🔄 <em>Please try again in a moment.</em>"}
-                        </div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            error_message = f"⚠️ **Error:** {str(e)}<br><br>Please try again in a moment."
+            timestamp = ""
+            if st.session_state.show_timestamps:
+                timestamp = time.strftime("%H:%M:%S", time.localtime())
+            
+            display_message("assistant", error_message, "⚠️", timestamp)
+            st.session_state.messages.append({
+                "role": "assistant", 
+                "content": error_message,
+                "timestamp": timestamp
+            })
 
+        # Rerun once more to show the complete response
+        st.rerun()
 
 if __name__ == "__main__":
     main()
+
+
