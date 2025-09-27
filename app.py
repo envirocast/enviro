@@ -1166,6 +1166,15 @@ footer {{
     background: {palette['bg_primary']} !important;
 }}
 
+/* Chat Input Container Background */
+[data-testid="stBottomBlockContainer"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+[data-testid="stChatInput"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
 .stChatInput {{
     background: {palette['bg_primary']} !important;
 }}
@@ -1181,6 +1190,18 @@ footer {{
     backdrop-filter: blur(20px) !important;
     border: 1px solid {palette['primary']}60 !important;
     border-radius: 12px !important;
+}}
+
+/* Force the bottom container and all its children to use theme background */
+[data-testid="stBottomBlockContainer"] * {{
+    background-color: {palette['bg_primary']} !important;
+}}
+
+/* Override any white/default backgrounds in chat input area */
+.st-emotion-cache-1y34ygi,
+.stVerticalBlock,
+.stElementContainer {{
+    background: {palette['bg_primary']} !important;
 }}
 
 .stChatInput textarea {{
@@ -1223,6 +1244,23 @@ footer {{
 
 .stApp [data-testid="stMain"] > div {{
     background: {palette['bg_primary']} !important;
+}}
+
+/* Force all bottom area containers to match theme */
+div[data-testid="stBottomBlockContainer"],
+div[data-testid="stBottomBlockContainer"] > *,
+div[data-testid="stBottomBlockContainer"] div {{
+    background: {palette['bg_primary']} !important;
+    background-color: {palette['bg_primary']} !important;
+}}
+
+/* Target the specific emotion cache classes that might override */
+.st-emotion-cache-1y34ygi,
+.st-emotion-cache-tn0cau,
+.st-emotion-cache-1vo6xi6,
+.st-emotion-cache-1eeryuo {{
+    background: {palette['bg_primary']} !important;
+    background-color: {palette['bg_primary']} !important;
 }}
 
 /* Typing effect cursor */
