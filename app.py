@@ -826,7 +826,7 @@ footer {{
 }}
 
 .stApp > header {{
-    background: transparent !important;
+    background: {palette['bg_primary']} !important;
     backdrop-filter: blur(20px) !important;
     border-bottom: 1px solid {palette['primary']}40 !important;
     z-index: 999999;
@@ -1131,6 +1131,28 @@ footer {{
 .stApp > div:last-child {{
     background: transparent;
     backdrop-filter: blur(20px);
+}}
+
+/* Force header to use theme background */
+[data-testid="stHeader"] {{
+    background: {palette['bg_primary']} !important;
+}}
+
+/* Force footer to be hidden and black */
+footer {{
+    visibility: hidden !important;
+    height: 0 !important;
+    background: {palette['bg_primary']} !important;
+}}
+
+/* Force main app container background */
+[data-testid="stAppViewContainer"] > .main {{
+    background: {palette['bg_primary']} !important;
+}}
+
+/* Force all container backgrounds */
+.stApp, .stApp > div, .main > .block-container {{
+    background: {palette['bg_primary']} !important;
 }}
 
 .stChatInput {{
