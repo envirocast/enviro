@@ -1357,11 +1357,15 @@ def stream_response(response_text):
             </div>
         """, unsafe_allow_html=True)
     else:
-        # Animated typing - character by character
+        # Animated typing - word by word (better performance)
+        words = response_text.split(' ')
         displayed_text = ""
         
-        for i, char in enumerate(response_text):
-            displayed_text += char
+        for i, word in enumerate(words):
+            if i == 0:
+                displayed_text = word
+            else:
+                displayed_text += " " + word
             
             # Show cursor while typing
             message_placeholder.markdown(f"""
@@ -1371,12 +1375,12 @@ def stream_response(response_text):
                 </div>
             """, unsafe_allow_html=True)
             
-            # Add delay based on animation speed
-            time.sleep(typing_speed)
+            # Add delay based on animation speed (adjust multiplier for word speed)
+            time.sleep(typing_speed * 3)  # Multiply by 3 since we're doing words instead of characters
             
-            # Every 50 characters, add a small pause for more natural typing
-            if i > 0 and i % 50 == 0:
-                time.sleep(0.1)
+            # Every 10 words, add a small pause for more natural typing
+            if i > 0 and i % 10 == 0:
+                time.sleep(0.2)
 
         # 4. Final render without cursor
         message_placeholder.markdown(f"""
