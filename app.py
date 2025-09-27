@@ -1219,13 +1219,24 @@ footer {{
 }}
 
 .stChatInput button {{
-    background: {palette['gradient']} !important;
+    background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
     border-radius: 8px !important;
-    color: #ffffff !important;
-    animation: shimmer 4s ease-in-out infinite !important;
-    background-size: 300% 300% !important;
+    color: {palette['primary']} !important;
     font-family: {font_stack} !important;
+}}
+
+/* Specifically target the submit button */
+[data-testid="stChatInputSubmitButton"] {{
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+}}
+
+[data-testid="stChatInputSubmitButton"] svg {{
+    color: {palette['primary']} !important;
+    fill: {palette['primary']} !important;
 }}
 
 .stChatInput button:hover {{
@@ -1261,6 +1272,26 @@ div[data-testid="stBottomBlockContainer"] div {{
 .st-emotion-cache-1eeryuo {{
     background: {palette['bg_primary']} !important;
     background-color: {palette['bg_primary']} !important;
+}}
+
+/* Chat Input Submit Button - Transparent Background */
+[data-testid="stChatInputSubmitButton"] {{
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+}}
+
+/* Also target the specific emotion cache class */
+.st-emotion-cache-1khv956 {{
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+}}
+
+/* Ensure the SVG icon inherits proper color */
+[data-testid="stChatInputSubmitButton"] svg {{
+    color: {palette['primary']} !important;
+    fill: {palette['primary']} !important;
 }}
 
 /* Typing effect cursor */
