@@ -201,7 +201,7 @@ def call_grok_api(messages, stream=False):
     }
     
     data = {
-        "model": "x-ai/grok-4-fast:free",
+        "model": "x-ai/grok-beta",
         "messages": messages,
         "temperature": 0.1,
         "max_tokens": 8192,
