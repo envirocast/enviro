@@ -201,7 +201,7 @@ def call_grok_api(messages, stream=False):
     }
     
     data = {
-        "model": "x-ai/grok-beta",
+        "model": "meta-llama/llama-4-maverick:free",
         "messages": messages,
         "temperature": 0.1,
         "max_tokens": 8192,
@@ -642,7 +642,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.caption("Powered by Grok AI")
+        st.caption("Powered by Llama 4 Maverick AI")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
