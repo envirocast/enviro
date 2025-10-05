@@ -437,12 +437,9 @@ def render_sidebar():
     st.sidebar.markdown("# Settings")
     
     with st.sidebar:
-        # Core Preferences
-
         # --- Deep Research Section ---
         st.markdown("## Deep Research")
     
-        # Toggle for enabling web search
         deep_research = st.checkbox(
             "Enable Deep Research (Web Search)", 
             st.session_state.get("deep_research", False)
@@ -961,7 +958,6 @@ footer {{
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }}
 
-/* FIXED: Main app container - override Streamlit containers */
 .block-container {{
     background: {palette['bg_primary']} !important;
     padding-top: 1rem !important;
