@@ -8,6 +8,7 @@ from textwrap import dedent
 # ----------------------------
 # Config & API initialization
 # ----------------------------
+
 try:
     api_key = st.secrets.get("ENVIRO_API_KEY") or os.getenv("ENVIRO_API_KEY")
     if not api_key:
