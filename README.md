@@ -1,1 +1,1 @@
-https://enviro-ai.streamlit.app/
+https://chat.envirocast.org/
