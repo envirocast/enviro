@@ -624,7 +624,6 @@ def render_sidebar():
                 "content": status_msg,
                 "timestamp": ""
             })
-            st.rerun()
         
         st.session_state.agentic_mode = agentic_mode
 
