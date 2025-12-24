@@ -231,7 +231,7 @@ def call_ai_api(messages, stream=False):
         }
     
     response = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}",
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
         headers=headers,
         data=json.dumps(data)
     )
@@ -671,7 +671,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.caption("Powered by Gemini 2.0 Flash")
+        st.caption("Powered by Gemini 1.5 Flash")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
