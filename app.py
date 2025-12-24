@@ -604,9 +604,15 @@ def render_sidebar():
         # --- Agentic Mode Section ---
         st.markdown("## Agentic Mode")
     
+        # Get previous state before showing checkbox
+        previous_agentic_mode = st.session_state.get("agentic_mode", False)
+        
+        # Dynamic label based on current state
+        checkbox_label = "Deactivate Agentic Web Search" if previous_agentic_mode else "Activate Agentic Web Search"
+        
         agentic_mode = st.checkbox(
-            "Activate Agentic Web Search", 
-            st.session_state.get("agentic_mode", False)
+            checkbox_label, 
+            previous_agentic_mode
         )
         
         # Check if mode changed and add status message
