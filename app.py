@@ -225,9 +225,12 @@ def call_ai_api(messages, stream=False):
         }
     }
     
+    # Add system instruction in the correct format for Gemini
     if system_instruction:
-        data["systemInstruction"] = {
-            "parts": [{"text": system_instruction}]
+        data["system_instruction"] = {
+            "parts": {
+                "text": system_instruction
+            }
         }
     
     response = requests.post(
