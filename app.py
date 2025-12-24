@@ -14,6 +14,9 @@ try:
     if not api_key:
         st.error("⚠️ ENVIRO_API_KEY not found in secrets")
         st.stop()
+    
+    api_provider = "gemini"
+        
 except Exception as e:
     st.error(f"⚠️ API configuration error: {str(e)}")
     st.stop()
@@ -194,28 +197,43 @@ You are ONLY an informational chatbot.
 **When Deep Research is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
 """.strip()
 
-def call_grok_api(messages, stream=False):
-    """Call the Grok API via OpenRouter"""
+def call_ai_api(messages, stream=False):
+    """Call Google Gemini API"""
     headers = {
-        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://chat.envirocast.org/",
-        "X-Title": "EnviroCast AI Chatbot",
     }
+    
+    # Convert messages to Gemini format
+    gemini_contents = []
+    system_instruction = None
+    
+    for msg in messages:
+        if msg["role"] == "system":
+            system_instruction = msg["content"]
+        else:
+            role = "user" if msg["role"] == "user" else "model"
+            gemini_contents.append({
+                "role": role,
+                "parts": [{"text": msg["content"]}]
+            })
     
     data = {
-        "model": "meta-llama/llama-4-maverick:free",
-        "messages": messages,
-        "temperature": 0.1,
-        "max_tokens": 8192,
-        "stream": stream
+        "contents": gemini_contents,
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 8192,
+        }
     }
     
+    if system_instruction:
+        data["systemInstruction"] = {
+            "parts": [{"text": system_instruction}]
+        }
+    
     response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}",
         headers=headers,
-        data=json.dumps(data),
-        stream=stream
+        data=json.dumps(data)
     )
     
     if not response.ok:
@@ -642,7 +660,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.caption("Powered by Llama 4 Maverick AI")
+        st.caption("Powered by Google Gemini 2.0 Flash")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
@@ -1706,11 +1724,10 @@ def main():
                     "content": msg["content"]
                 })
             
-            # Call Grok API
-            response = call_grok_api(api_messages, stream=False)
+            # Call Gemini API
+            response = call_ai_api(api_messages, stream=False)
             response_data = response.json()
-            
-            response_text = response_data["choices"][0]["message"]["content"]
+            response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
             
             # Clear the analyzing message and show typing animation
             analyzing_placeholder.empty()
