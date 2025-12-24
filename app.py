@@ -671,7 +671,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.caption("Powered by Google Gemini 2.0 Flash")
+        st.caption("Powered by Gemini 2.0 Flash")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
