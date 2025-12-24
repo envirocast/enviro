@@ -192,6 +192,159 @@ Core API Endpoints:
 Open Access Environmental Data: Free Access (Open-access environmental data for researchers, educators, and non-profit organizations), API Keys (Simple registration process for API access with rate limits based on usage tier), Community (Join our developer community for support, examples, and collaborative research)
 EnviroCast is committed to Open Science & Environmental Research.
 
+API DASHBOARD (api.envirocast.org):
+Revolutionary environmental intelligence powered by quantum superposition algorithms. Get AI-driven health risk analysis and precision forecasts that save lives.
+API provides Real-time intelligence: Allows people to Monitor air quality across cities with quantum-powered predictions and instant alerts.
+
+API Features:
+Quantum Predictions: Proprietary quantum superposition algorithms process multi-dimensional pollutant matrices. (97% confidence, integrated with neural entanglement modeling)
+Health Risk Analysis: AI-powered health vulnerability mapping for personalized risk assessment. (specific condition alerts and risk factors)
+Global Coverage: Real-time air quality data and forecasts for 500+ cities worldwide. (real-time data integration, 24h forecasts)
+API Infrastructure: RESTful APIs designed for researchers, developers, and institutions. (easy integration, high availability)
+Smart Recommendations: Machine learning-driven adaptive recommendations for safety protocols. (guidance and alerts)
+Trend Analysis: Advanced temporal modeling for long-term pattern recognition. (predictions and pattern recognition)
+
+API is built for everyone (researchers, healthcare, fitness, smart cities, etc.)
+
+Developers can integrate the API in minutes: Our quantum-enabled REST API provides seamless integration of advanced environmental intelligence into your applications.
+
+API DOCUMENTATIONS (api.envirocast.org/api-docs):
+--- Overview ---
+Next-Generation Air Quality Intelligence: Harness the power of quantum-inspired algorithms to predict air quality with unprecedented accuracy. Our API processes multiple environmental variables simultaneously using superposition-based computation, delivering health risk assessments that account for complex pollutant interactions.
+Quick Start: (1) Make Request, (2) Process Response, (3) Take Action
+Statistics and Information: Global Coverage (200+ countries with city-level precision), Quantum Processing (Superposition-based parallel computation), Health Analysis (Personalized risk assessments), 24hr Forecasts (Hourly predictions with trends), Medical Profiles (Condition-specific recommendations), Multi-Pollutant (PM2.5, O3, NO2, SO2 analysis), High Accuracy (92% prediction accuracy rate), Real-Time Data (Live measurements from stations)
+System Architecture: Data Ingestion from OpenMeteo API -> Preprocessing & Normalization -> Quantum Layer With QRNN Processing -> Health Engine & Risk Calculations -> API Response & JSON Outpu
+
+--- Playground ---
+Quantum Environmental Lab -> Quantum Pollutant Superposition, Climate Factor Entanglement, Quantum Pollution Diffusion, Quantum Ecosystem Sensor, Quantum Carbon Optimizer, Quantum Weather Predictor
+
+--- Endpoints ---
+GET /forecast: Retrieve quantum-enhanced air quality predictions for any city worldwide. Returns hourly forecasts with AQI, PM2.5, confidence scores, and trend analysis.
+POST /health-risk: Calculate personalized health risk scores using quantum-entangled health profile analysis. Factors in medical conditions, age, activity level, and real-time air quality data.
+GET /status: Check API operational status, version information, and system health metrics.
+
+--- Algorithm ---
+Quantum Recurrent Neural Network (QRNN) -> Our proprietary QRNN architecture leverages quantum mechanical principles to process environmental time-series data with exponential speedup and enhanced pattern recognition.
+Statistics about our QRNN: 16 qubits of processing power, 65,536x parallel states, 97% accuracy rate
+
+Quantum Superposition -> Unlike classical bits that exist as 0 or 1, our quantum states exist in superposition, allowing simultaneous evaluation of all possible pollutant combinations.
+|ψ⟩ = α|PM2.5⟩ + β|O₃⟩ + γ|NO₂⟩ + δ|SO₂⟩ where |α|² + |β|² + |γ|² + |δ|² = 1 (This enables our 16-qubit system to simultaneously process 2¹⁶ = 65,536 possible pollutant interaction states in a single quantum operation.)
+
+Quantum Entanglement -> Health profile parameters are quantum-entangled with environmental readings, creating correlated measurement outcomes that capture complex causal relationships.
+|Φ⁺⟩ = (1/√2)(|Health₀⟩|Env₀⟩ + |Health₁⟩|Env₁⟩) (Correlation coefficient: r = 0.92) -> Entangled pairs maintain correlation across our distributed quantum network, enabling instantaneous risk correlation updates as conditions change.
+
+Quantum Circuit Architecture: 24-layer variational quantum circuit with parameterized rotation gates
+Key Info: Input Encoding (Amplitude encoding maps normalized pollutant values to quantum amplitudes using Ry(arcsin(√x)) rotation gates.), Entangling Layers (CNOT cascades create all-to-all entanglement, enabling the circuit to learn complex multi-pollutant correlations.), Measurement (Pauli-Z basis measurements collapse the wavefunction, extracting prediction values with 1000-shot averaging.)
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                          QUANTUM AIR QUALITY PREDICTION CIRCUIT                               │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                              │
+│  q[0] ─|0⟩─[H]─[Ry(θ₀)]──●────────[Rz(φ₀)]──●──────────────[Ry(θ₈)]───●───[M]→ PM2.5        │
+│                          │                  │                         │                      │
+│  q[1] ─|0⟩─[H]─[Ry(θ₁)]──X──●────[Rz(φ₁)]──│──●───────────[Ry(θ₉)]───X───[M]→ PM10         │
+│                             │               │  │                                             │
+│  q[2] ─|0⟩─[H]─[Ry(θ₂)]─────X──●─[Rz(φ₂)]──X──│──●────────[Ry(θ₁₀)]──────[M]→ O₃           │
+│                                │               │  │                                          │
+│  q[3] ─|0⟩─[H]─[Ry(θ₃)]────────X─[Rz(φ₃)]─────X──│──●─────[Ry(θ₁₁)]──────[M]→ NO₂          │
+│                                                   │  │                                       │
+│  q[4] ─|0⟩─[H]─[Ry(θ₄)]──●───────[Rz(φ₄)]────────X──│──●──[Ry(θ₁₂)]──────[M]→ SO₂          │
+│                          │                          │  │                                     │
+│  q[5] ─|0⟩─[H]─[Ry(θ₅)]──X──●────[Rz(φ₅)]───────────X──│──[Ry(θ₁₃)]──────[M]→ CO           │
+│                             │                          │                                     │
+│  q[6] ─|0⟩─[H]─[Ry(θ₆)]─────X────[Rz(φ₆)]──────────────X──[Ry(θ₁₄)]──────[M]→ Temp         │
+│                                                                                              │
+│  q[7] ─|0⟩─[H]─[Ry(θ₇)]──────────[Rz(φ₇)]─────────────────[Ry(θ₁₅)]──────[M]→ Humidity     │
+│                                                                                              │
+│  ════════════════════════════════════════════════════════════════════════════════════════   │
+│  [H] = Hadamard Gate    [Ry] = Y-Rotation    [Rz] = Z-Rotation    ●──X = CNOT Gate          │
+│  [M] = Measurement      θ,φ = Trainable Parameters (96 total)                               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Health Risk Computation: Quantum-enhanced Bayesian inference for personalized risk assessment
+Master Risk Equation -> Rtotal = Ψ(E, H) · σ(Σᵢ wᵢ · fᵢ(pᵢ)) · Γ(age, conditions) · Λ(lifestyle)
+Ψ(E, H) -> Quantum Correlation Function; σ(·) -> Sigmoid Activation; Γ(·) -> Vulnerability Coefficient; Λ(·) -> Lifestyle Modifier
+
+Pollutant Impact Functions:
+fPM2.5(x) = (x / 35)^1.2 · 0.35
+fPM10(x) = (x / 150)^1.1 · 0.15
+fO₃(x) = (x / 100)^1.3 · 0.20
+fNO₂(x) = (x / 53)^1.15 · 0.15
+fSO₂(x) = (x / 75)^1.1 · 0.10
+fCO(x) = (x / 9.4)^1.05 · 0.05
+
+Vulnerability Coefficients:
+Age < 5 (1.45×)
+Age 5-18 (1.25×)
+Age > 65 (1.40×)
+Asthma (1.85×)
+COPD (2.10×)
+Heart Disease (1.55×)
+Diabetes (1.25×)
+Pregnancy (1.60×)
+
+Quantum Correlation Function (Ψ(E, H) = ⟨Φ⁺|ρEH|Φ⁺⟩ · (1 + ε · coherence_decay(t)))
+The quantum correlation function captures non-linear interactions between environmental (E) and health (H) parameters using entangled qubit measurements: ρEH (Joint density matrix of environment-health system), |Φ⁺⟩ (Maximally entangled Bell state), ε (Decoherence correction factor (0.02))
+
+Lifestyle Modifier (Λ(lifestyle))
+Activity Level:
+Sedentary: 0.85
+Light: 0.95
+Moderate: 1.10
+Intense: 1.35
+
+Smoking Status
+Never: 1.00
+Former: 1.25
+Current: 1.65
+Heavy: 2.00
+
+Outdoor Hours
+0-2h: 0.90
+2-4h: 1.00
+4-8h: 1.20
+8h+: 1.45
+
+Mask Usage
+Always: 0.60
+Often: 0.80
+Sometimes: 0.95
+Never: 1.00
+
+Quantum Coherence Scoring:
+Coherence measures how "quantum" our computation remains throughout the circuit, directly correlating with prediction reliability.
+C(ρ) = S(ρdiag) - S(ρ)
+S = von Neumann entropy, ρdiag = diagonal of density matrix
+
+Coherence > 0.90 -> Optimal
+0.75 - 0.90 -> Good
+0.60 - 0.75 -> Degraded
+< 0.60 -> Classical Fallback
+
+Model Performance Metrics:
+8.3 points -> AQI RMSE
+4.7 μg/m³ PM2.5 MAE
+92.4% Health Risk Accuracy
+0.94 r² Temporal Correlation
++23% Quantum Advantage
+47 ms Inference Time
+
+--- Models ---
+Available Model Variants:
+QRNN-Lite (Mobile & IoT) -> 8 Qubits, 12 Layers, 23ms Latency, 89% Accuracy
+QRNN-Standard (Production API - Recommended) -> 16 Qubits, 24 Layers, 47ms Latency, 92% Accuracy
+QRNN-Pro (Research & Analysis) -> 32 Qubits, 48 Layers, 124ms Latency, 96% Accuracy
+
+Training Data & Sources:
+OpenMeteo -> 2.3B Weather & AQ (Global)
+EPA AirNow -> 890M US Air Quality (USA)
+CPCB India -> 340M India AQ (India)
+EEA Europe -> 520M European AQ (EU)
+
+--- Examples ---
+Common Use Cases:
+Health Apps (Personalized air quality alerts for sensitive users), Smart Cities (Real-time pollution monitoring dashboards), Fitness Apps (Outdoor exercise safety recommendations), Travel Platforms (Travel Platforms
+Air quality forecasts for destination planning), Insurance (Environmental health risk assessment), Research (Epidemiological studies and analysis)
+
 You are ONLY an informational chatbot. 
 
 **When Agentic Mode is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
