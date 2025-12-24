@@ -194,7 +194,7 @@ EnviroCast is committed to Open Science & Environmental Research.
 
 You are ONLY an informational chatbot. 
 
-**When Deep Research is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
+**When Agentic Mode is selected, search the web and use a multitude of sources (put in Citations as well) to provide a response. When not selected, provide major sources only.
 """.strip()
 
 def call_ai_api(messages, stream=False):
@@ -458,14 +458,25 @@ def render_sidebar():
     st.sidebar.markdown("# Settings")
     
     with st.sidebar:
-        # --- Deep Research Section ---
-        st.markdown("## Deep Research")
+        # --- Agentic Mode Section ---
+        st.markdown("## Agentic Mode")
     
-        deep_research = st.checkbox(
-            "Enable Deep Research (Web Search)", 
-            st.session_state.get("deep_research", False)
+        agentic_mode = st.checkbox(
+            "Activate Agentic Web Search", 
+            st.session_state.get("agentic_mode", False)
         )
-        st.session_state.deep_research = deep_research
+        
+        # Check if mode changed and add status message
+        if "agentic_mode" in st.session_state and st.session_state.agentic_mode != agentic_mode:
+            # Mode changed - add status message
+            status_msg = "Agentic Mode Activated" if agentic_mode else "Agentic Mode Deactivated"
+            st.session_state.messages.append({
+                "role": "system_status",
+                "content": status_msg,
+                "timestamp": ""
+            })
+        
+        st.session_state.agentic_mode = agentic_mode
 
         st.markdown("### Typography")
         
@@ -1626,6 +1637,15 @@ def main():
         timestamp = message.get("timestamp", "")
         if message["role"] == "user":
             display_message("user", message["content"], "👤", timestamp)
+        elif message["role"] == "system_status":
+            # Display system status message with gradient styling
+            st.markdown(f"""
+                <div style="text-align: center; margin: 2rem 0;">
+                    <span class="analyzing-text" style="font-size: 1.2rem; font-weight: 600;">
+                        {message["content"]}
+                    </span>
+                </div>
+            """, unsafe_allow_html=True)
         else:
             display_message("assistant", message["content"], "🌐", timestamp)
     st.markdown('</div>', unsafe_allow_html=True) # End chat-messages
