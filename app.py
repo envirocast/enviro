@@ -217,6 +217,12 @@ def call_ai_api(messages, stream=False):
                 "parts": [{"text": msg["content"]}]
             })
     
+    # Prepend system instruction as first user message if present
+    if system_instruction and gemini_contents:
+        # Insert system instruction before first user message
+        first_user_content = gemini_contents[0]["parts"][0]["text"]
+        gemini_contents[0]["parts"][0]["text"] = f"{system_instruction}\n\n{first_user_content}"
+    
     data = {
         "contents": gemini_contents,
         "generationConfig": {
@@ -224,14 +230,6 @@ def call_ai_api(messages, stream=False):
             "maxOutputTokens": 8192,
         }
     }
-    
-    # Add system instruction in the correct format for Gemini
-    if system_instruction:
-        data["system_instruction"] = {
-            "parts": {
-                "text": system_instruction
-            }
-        }
     
     response = requests.post(
         f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}",
