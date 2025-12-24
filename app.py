@@ -231,9 +231,9 @@ def call_ai_api(messages, stream=False):
         }
     }
     
-    # Use v1 API with key as query parameter
+    # Use v1 API with Gemini 2.0 Flash
     response = requests.post(
-        f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}",
+        f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent?key={api_key}",
         headers=headers,
         data=json.dumps(data)
     )
