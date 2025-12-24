@@ -198,42 +198,30 @@ You are ONLY an informational chatbot.
 """.strip()
 
 def call_ai_api(messages, stream=False):
-    """Call Google Gemini API"""
+    """Call Groq API"""
     headers = {
         "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
     }
     
-    # Convert messages to Gemini format
-    gemini_contents = []
-    system_instruction = None
+    # Groq uses OpenAI-compatible format
+    groq_messages = []
     
     for msg in messages:
-        if msg["role"] == "system":
-            system_instruction = msg["content"]
-        else:
-            role = "user" if msg["role"] == "user" else "model"
-            gemini_contents.append({
-                "role": role,
-                "parts": [{"text": msg["content"]}]
-            })
-    
-    # Prepend system instruction as first user message if present
-    if system_instruction and gemini_contents:
-        # Insert system instruction before first user message
-        first_user_content = gemini_contents[0]["parts"][0]["text"]
-        gemini_contents[0]["parts"][0]["text"] = f"{system_instruction}\n\n{first_user_content}"
+        groq_messages.append({
+            "role": msg["role"],
+            "content": msg["content"]
+        })
     
     data = {
-        "contents": gemini_contents,
-        "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 8192,
-        }
+        "model": "llama-3.3-70b-versatile",  # Fast and free model
+        "messages": groq_messages,
+        "temperature": 0.7,
+        "max_tokens": 8192,
     }
     
-    # Use v1beta API with Gemini 2.0 Flash
     response = requests.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}",
+        "https://api.groq.com/openai/v1/chat/completions",
         headers=headers,
         data=json.dumps(data)
     )
