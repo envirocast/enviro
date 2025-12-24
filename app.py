@@ -661,7 +661,7 @@ def render_sidebar():
             update_chat_model()
             st.rerun()
 
-        st.caption("Powered by Gemini 1.5 Flash")
+        st.caption("Powered by Groq")
         
         # Check if any preferences changed and update model if needed
         preferences_changed = (
@@ -1724,20 +1724,21 @@ def main():
         analyzing_placeholder.markdown(analyzing_message_html, unsafe_allow_html=True)
         
         try:
-            # Build messages for Grok API
+            # Build messages for Groq API
             api_messages = [{"role": "system", "content": build_dynamic_system_instruction()}]
             
-            # Add conversation history
+            # Add conversation history (filter out system_status messages)
             for msg in st.session_state.messages:
-                api_messages.append({
-                    "role": msg["role"],
-                    "content": msg["content"]
-                })
+                if msg["role"] != "system_status":  # Skip system status messages
+                    api_messages.append({
+                        "role": msg["role"],
+                        "content": msg["content"]
+                    })
             
-            # Call Gemini API
+            # Call Groq API
             response = call_ai_api(api_messages, stream=False)
             response_data = response.json()
-            response_text = response_data["candidates"][0]["content"]["parts"][0]["text"]
+            response_text = response_data["choices"][0]["message"]["content"]
             
             # Clear the analyzing message and show typing animation
             analyzing_placeholder.empty()
