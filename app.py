@@ -1950,7 +1950,55 @@ def main():
         except Exception as e:
             # Clear analyzing message and show error
             analyzing_placeholder.empty()
-            error_message = f"⚠️ **Error:** {str(e)}<br><br>Please try again in a moment."
+            
+            error_str = str(e)
+            
+            # Check if it's a rate limit error
+            if "rate_limit_exceeded" in error_str or "Rate limit reached" in error_str:
+                # Extract wait time if available
+                import re
+                wait_time_match = re.search(r'try again in ([\d.]+)s', error_str)
+                wait_time = wait_time_match.group(1) if wait_time_match else "a few"
+                
+                error_message = f"""
+                <div style="padding: 1rem; background: rgba(255, 69, 0, 0.1); border-left: 4px solid #ff4500; border-radius: 8px;">
+                    <div style="font-size: 1.1rem; font-weight: 600; color: #ff6347; margin-bottom: 0.5rem;">
+                        ⚠️ ERROR: Too many tokens used per minute
+                    </div>
+                    <div style="color: #ffcccb; margin-bottom: 1rem;">
+                        Please try again in <strong>{wait_time} seconds</strong>
+                    </div>
+                    <details style="cursor: pointer;">
+                        <summary style="color: #ffa07a; font-size: 0.9rem; user-select: none;">
+                            View full error message ▼
+                        </summary>
+                        <div style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #ddd; word-wrap: break-word; overflow-wrap: break-word;">
+                            {error_str}
+                        </div>
+                    </details>
+                </div>
+                """
+            else:
+                # Generic error formatting
+                error_message = f"""
+                <div style="padding: 1rem; background: rgba(255, 69, 0, 0.1); border-left: 4px solid #ff4500; border-radius: 8px;">
+                    <div style="font-size: 1.1rem; font-weight: 600; color: #ff6347; margin-bottom: 0.5rem;">
+                        ⚠️ ERROR: Something went wrong
+                    </div>
+                    <div style="color: #ffcccb; margin-bottom: 1rem;">
+                        Please try again in a moment
+                    </div>
+                    <details style="cursor: pointer;">
+                        <summary style="color: #ffa07a; font-size: 0.9rem; user-select: none;">
+                            View full error message ▼
+                        </summary>
+                        <div style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #ddd; word-wrap: break-word; overflow-wrap: break-word;">
+                            {error_str}
+                        </div>
+                    </details>
+                </div>
+                """
+            
             timestamp = ""
             if st.session_state.show_timestamps:
                 timestamp = time.strftime("%H:%M:%S", time.localtime())
