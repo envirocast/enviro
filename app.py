@@ -1436,17 +1436,32 @@ footer {{
     background: {palette['bg_primary']} !important;
 }}
 
+/* Chat Input - Full Width Styling */
 .stChatInput > div {{
-    max-width: 900px !important;
-    margin: 0 auto !important;
-    background: {palette['bg_primary']} !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
 }}
 
 .stChatInput > div > div {{
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(20px) !important;
-    border: 1px solid {palette['primary']}60 !important;
-    border-radius: 12px !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid {palette['primary']}60 !important; /* Just a bottom border */
+    padding: 0 2rem !important; /* Padding inside for spacing */
+}}
+
+.stChatInput textarea {{
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-size: {st.session_state.font_size}px !important;
+    padding: 0.75rem 0 !important; /* Top and bottom padding only */
+    font-family: {font_stack} !important;
+    width: 100% !important;
 }}
 
 /* Force the bottom container and all its children to use theme background */
@@ -1461,14 +1476,6 @@ footer {{
     background: {palette['bg_primary']} !important;
 }}
 
-.stChatInput textarea {{
-    background: transparent !important;
-    color: #ffffff !important;
-    border: none !important;
-    font-size: {st.session_state.font_size}px !important;
-    padding: 0.5rem 1rem !important;
-    font-family: {font_stack} !important;
-}}
 
 .stChatInput textarea::placeholder {{
     color: #888888 !important;
