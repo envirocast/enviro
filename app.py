@@ -1287,7 +1287,7 @@ footer {{
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    max-width: 900px;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: {density['message_margin']};
